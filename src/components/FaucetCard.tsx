@@ -11,13 +11,11 @@ import Confetti from 'react-confetti';
 import { useEffect, useState } from 'react';
 import { CLAIM_AMOUNT_USD } from '@/config/constants';
 import { useFarcasterMiniApp } from './FarcasterFrameProvider';
-import { usePrivy } from '@privy-io/react-auth';
 
 export function FaucetCard() {
   const { data: ethPrice } = useEthPrice();
   const { data: eligibility, isLoading: checkingEligibility, refetch: checkEligibility } = useEligibility();
   const { isInMiniApp, context: miniAppContext } = useFarcasterMiniApp();
-  const { loginWithFarcaster } = usePrivy();
   
   // Use existing Privy claim hook
   const {
@@ -51,18 +49,14 @@ export function FaucetCard() {
   useEffect(() => {
     if (isInMiniApp && miniAppContext && !authenticated && ready) {
       console.log('🟣 Auto-logging in with Farcaster from Mini-App context');
-      loginWithFarcaster();
+      // Trigger Farcaster login with loginHint
+      login();
     }
-  }, [isInMiniApp, miniAppContext, authenticated, ready, loginWithFarcaster]);
+  }, [isInMiniApp, miniAppContext, authenticated, ready, login]);
 
   const handleClaim = async () => {
     if (!authenticated) {
-      // If in Mini-App, use Farcaster login directly
-      if (isInMiniApp) {
-        loginWithFarcaster();
-      } else {
-        login();
-      }
+      login();
       return;
     }
     await claim();
@@ -289,7 +283,7 @@ export function FaucetCard() {
               variant="glow"
               size="xl"
               className="w-full"
-              onClick={() => isInMiniApp ? loginWithFarcaster() : login()}
+              onClick={login}
             >
               <Droplet className="w-5 h-5" />
               <span>{isInMiniApp ? 'Login with Farcaster' : 'Login to Claim'}</span>
