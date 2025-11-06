@@ -40,10 +40,6 @@ export default function PrivyProviderWrapper({
         // Supported chains
         defaultChain: IS_MOCK_MODE ? baseSepolia : base,
         supportedChains: [base, baseSepolia],
-        // Farcaster
-        farcaster: {
-          enabled: true,
-        },
       }}
     >
       {children}
