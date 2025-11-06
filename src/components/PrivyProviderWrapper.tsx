@@ -15,6 +15,9 @@ export default function PrivyProviderWrapper({
     console.log('✅ Using Privy App ID:', appId);
   }
 
+  // Detect if in Farcaster Mini-App (iframe)
+  const isInMiniApp = typeof window !== 'undefined' && window.parent !== window;
+
   return (
     <PrivyProvider
       appId={appId}
@@ -30,11 +33,17 @@ export default function PrivyProviderWrapper({
             createOnLogin: 'all-users', // Auto-create wallet for all users
           },
         },
-        // Login methods
-        loginMethods: ['wallet', 'farcaster', 'email', 'sms'],
+        // Login methods - Prioritize Farcaster when in Mini-App
+        loginMethods: isInMiniApp 
+          ? ['farcaster', 'wallet', 'email', 'sms']  // Farcaster first in Mini-App
+          : ['wallet', 'farcaster', 'email', 'sms'], // Generic order for web
         // Supported chains
         defaultChain: IS_MOCK_MODE ? baseSepolia : base,
         supportedChains: [base, baseSepolia],
+        // Farcaster
+        farcaster: {
+          enabled: true,
+        },
       }}
     >
       {children}
