@@ -1,0 +1,31 @@
+{
+  "frame": {
+    "name": "highp haus",
+    "version": "1",
+    "iconUrl": "https://highp-haus.vercel.app/icon.png",
+    "homeUrl": "https://highp-haus.vercel.app",
+    "imageUrl": "https://highp-haus.vercel.app/nft-preview.png",
+    "buttonTitle": "Claim Free ETH",
+    "splashImageUrl": "https://highp-haus.vercel.app/icon.png",
+    "splashBackgroundColor": "#0052FF",
+    "webhookUrl": "https://highp-haus.vercel.app/api/webhook",
+    "subtitle": "Free ETH for Builders",
+    "description": "Get $0.10 worth of ETH instantly on Base Network. One-time claim per Farcaster ID. No gas fees required.",
+    "primaryCategory": "utility",
+    "tags": [
+      "gas",
+      "free",
+      "base",
+      "faucet",
+      "eth"
+    ],
+    "tagline": "Claim $0.10 worth of ETH",
+    "ogTitle": "highphaus - Free ETH Faucet on Base"
+  },
+  "accountAssociation": {
+    "header": "eyJmaWQiOjI1OTkxMywidHlwZSI6ImF1dGgiLCJrZXkiOiIweDE2QmM5MDJjYzk3NDRkOThmRjAzRDEyOTA0MjVhRkQ0RDRiOTAyMWEifQ",
+    "payload": "eyJkb21haW4iOiJoaWdocC1oYXVzLnZlcmNlbC5hcHAifQ",
+    "signature": "Tw3cqP8ErXkNKs/N1fdrnJ84XYgtXUajMAC9bDltyn1PgGi5njYwH7k1pWLNz+rFMxeFBoV94KRB137JcrkXThs="
+  }
+}
+
