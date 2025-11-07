@@ -47,12 +47,12 @@ export function createPimlicoBundlerClient(chain: Chain = base) {
  */
 export async function createUserSmartAccount(
   userPrivateKey: Hex,
-  publicClient: ReturnType<typeof createPublicClient>
+  publicClient: ReturnType<typeof createPimlicoPublicClient>
 ) {
   const owner = privateKeyToAccount(userPrivateKey);
 
   return toSafeSmartAccount({
-    client: publicClient,
+    client: publicClient as any, // Type assertion for permissionless compatibility
     owners: [owner],
     entryPoint: {
       address: entryPoint07Address,
