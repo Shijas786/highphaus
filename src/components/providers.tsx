@@ -5,6 +5,7 @@ import { ReactNode, useState } from 'react';
 import { Toaster } from 'sonner';
 import PrivyProviderWrapper from './PrivyProviderWrapper';
 import { FarcasterProvider } from './FarcasterProvider';
+import { ErrorBoundary } from './ErrorBoundary';
 
 export function Providers({ children }: { children: ReactNode }) {
   const [queryClient] = useState(
@@ -21,23 +22,25 @@ export function Providers({ children }: { children: ReactNode }) {
   );
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <FarcasterProvider>
-        <PrivyProviderWrapper>
-          {children}
-          <Toaster
-            position="top-right"
-            theme="dark"
-            toastOptions={{
-              style: {
-                background: 'rgba(10, 10, 15, 0.9)',
-                border: '1px solid rgba(0, 82, 255, 0.3)',
-                color: '#fff',
-              },
-            }}
-          />
-        </PrivyProviderWrapper>
-      </FarcasterProvider>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <FarcasterProvider>
+          <PrivyProviderWrapper>
+            {children}
+            <Toaster
+              position="top-right"
+              theme="dark"
+              toastOptions={{
+                style: {
+                  background: 'rgba(10, 10, 15, 0.9)',
+                  border: '1px solid rgba(0, 82, 255, 0.3)',
+                  color: '#fff',
+                },
+              }}
+            />
+          </PrivyProviderWrapper>
+        </FarcasterProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
