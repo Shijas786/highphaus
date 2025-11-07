@@ -10,55 +10,34 @@ export const faucetContract = {
 } as const;
 
 /**
- * Get claim function configuration
+ * Get claim function configuration for Farcaster users
  */
 export function getClaimConfig(account: Address) {
   return {
     ...faucetContract,
-    functionName: 'claim',
+    functionName: 'claimFarcaster',
     account,
   } as const;
 }
 
 /**
- * Get canClaim check configuration
+ * Get fidClaimed check configuration
  */
-export function getCanClaimConfig(userAddress: Address) {
+export function getFidClaimedConfig(fid: number) {
   return {
     ...faucetContract,
-    functionName: 'canClaim',
-    args: [userAddress],
+    functionName: 'fidClaimed',
+    args: [BigInt(fid)],
   } as const;
 }
 
 /**
- * Get last claim time configuration
- */
-export function getLastClaimTimeConfig(userAddress: Address) {
-  return {
-    ...faucetContract,
-    functionName: 'lastClaimTime',
-    args: [userAddress],
-  } as const;
-}
-
-/**
- * Get claim amount configuration
+ * Get Wei amount configuration (how much ETH to claim)
  */
 export function getClaimAmountConfig() {
   return {
     ...faucetContract,
-    functionName: 'claimAmount',
-  } as const;
-}
-
-/**
- * Get cooldown time configuration
- */
-export function getCooldownTimeConfig() {
-  return {
-    ...faucetContract,
-    functionName: 'cooldownTime',
+    functionName: 'getWeiAmount',
   } as const;
 }
 
@@ -70,10 +49,10 @@ export function parseClaimAmount(amount: string) {
 }
 
 /**
- * Faucet contract event types
+ * Farcaster Faucet event types
  */
-export type ClaimedEvent = {
-  recipient: Address;
-  amount: bigint;
-  timestamp: bigint;
+export type ClaimedFarcasterEvent = {
+  user: Address;
+  fid: bigint;
+  weiAmount: bigint;
 };
