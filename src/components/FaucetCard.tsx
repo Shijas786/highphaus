@@ -31,7 +31,6 @@ export function FaucetCard() {
   const [showConfetti, setShowConfetti] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [fillPercent] = useState(50); // Static fill animation
-  const [hasAttemptedAutoLogin, setHasAttemptedAutoLogin] = useState(false);
 
   useEffect(() => {
     if (txHash) {
