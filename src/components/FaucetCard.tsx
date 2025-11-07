@@ -42,38 +42,16 @@ export function FaucetCard() {
     }
   }, [txHash, checkEligibility]);
 
-  // Smart auto-login with Farcaster in Mini-App
+  // Log Farcaster Mini-App detection
   useEffect(() => {
-    if (
-      isMiniapp &&
-      farcasterUser &&
-      !farcasterLoading &&
-      !authenticated &&
-      ready &&
-      !hasAttemptedAutoLogin
-    ) {
-      console.log('🟣 Farcaster Mini-App detected - Auto-connecting', {
+    if (isMiniapp && farcasterUser && !farcasterLoading) {
+      console.log('🟣 Farcaster Mini-App detected', {
         fid: farcasterUser.fid,
         username: farcasterUser.username,
+        note: 'User already authenticated via Farcaster context',
       });
-
-      // Set flag to prevent multiple attempts
-      setHasAttemptedAutoLogin(true);
-
-      // Add small delay to ensure DOM is ready
-      setTimeout(() => {
-        login();
-      }, 500);
     }
-  }, [
-    isMiniapp,
-    farcasterUser,
-    farcasterLoading,
-    authenticated,
-    ready,
-    hasAttemptedAutoLogin,
-    login,
-  ]);
+  }, [isMiniapp, farcasterUser, farcasterLoading]);
 
   const handleClaim = async () => {
     if (!authenticated) {
@@ -91,6 +69,14 @@ export function FaucetCard() {
     if (!ready) {
       return {
         message: 'Loading...',
+        canClaim: false,
+      };
+    }
+
+    // If in Mini-App with Farcaster user but not authenticated
+    if (isMiniapp && farcasterUser && !authenticated) {
+      return {
+        message: 'Connect wallet to claim (Farcaster detected)',
         canClaim: false,
       };
     }
