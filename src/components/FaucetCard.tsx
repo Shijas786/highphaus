@@ -41,14 +41,10 @@ export function FaucetCard() {
     }
   }, [txHash, checkEligibility]);
 
-  // Log Farcaster Mini-App detection
+  // Detect Farcaster Mini-App context
   useEffect(() => {
     if (isMiniapp && farcasterUser && !farcasterLoading) {
-      console.log('🟣 Farcaster Mini-App detected', {
-        fid: farcasterUser.fid,
-        username: farcasterUser.username,
-        note: 'User already authenticated via Farcaster context',
-      });
+      // Farcaster user detected - ready for wallet connection
     }
   }, [isMiniapp, farcasterUser, farcasterLoading]);
 
