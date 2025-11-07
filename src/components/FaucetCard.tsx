@@ -41,15 +41,12 @@ export function FaucetCard() {
     }
   }, [txHash, checkEligibility]);
 
-  // Auto-connect in Farcaster Mini-App
+  // Detect Farcaster Mini-App context (no auto-login to avoid popup issues)
   useEffect(() => {
-    if (isMiniApp && fid && !authenticated && ready) {
-      // User is in Farcaster with known FID - trigger wallet connection
-      setTimeout(() => {
-        privyLogin();
-      }, 800);
+    if (isMiniapp && farcasterUser && !farcasterLoading) {
+      // Farcaster context detected - ready for manual login
     }
-  }, [isMiniApp, fid, authenticated, ready, privyLogin]);
+  }, [isMiniapp, farcasterUser, farcasterLoading]);
 
   const handleClaim = async () => {
     if (!authenticated) {
@@ -72,9 +69,9 @@ export function FaucetCard() {
     }
 
     // If in Mini-App with Farcaster user but not authenticated
-    if (isMiniApp && fid && !authenticated) {
+    if (isMiniapp && farcasterUser && !authenticated) {
       return {
-        message: `Connect wallet to claim (Farcaster #${fid})`,
+        message: `Connect wallet to claim (Farcaster #${farcasterUser.fid})`,
         canClaim: false,
       };
     }
