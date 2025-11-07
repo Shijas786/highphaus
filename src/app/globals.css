@@ -47,12 +47,12 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Inter', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: #FFFFFF;
+  background: #ffffff;
   color: #1a1a1a;
 }
 
 body {
-  background: #FFFFFF;
+  background: #ffffff;
   color: #1a1a1a;
 }
 
@@ -127,4 +127,3 @@ input:focus-visible {
     animation-delay: 450ms;
   }
 }
-

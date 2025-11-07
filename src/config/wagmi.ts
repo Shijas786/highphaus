@@ -25,9 +25,7 @@ export const config = createConfig({
   ],
   transports: {
     [base.id]: http(process.env.NEXT_PUBLIC_BASE_RPC || 'https://mainnet.base.org'),
-    [baseSepolia.id]: http(
-      process.env.NEXT_PUBLIC_BASE_SEPOLIA_RPC || 'https://sepolia.base.org'
-    ),
+    [baseSepolia.id]: http(process.env.NEXT_PUBLIC_BASE_SEPOLIA_RPC || 'https://sepolia.base.org'),
   },
   ssr: true,
 });
@@ -37,5 +35,3 @@ declare module 'wagmi' {
     config: typeof config;
   }
 }
-
-

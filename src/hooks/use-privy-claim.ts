@@ -10,7 +10,7 @@ export function usePrivyClaim() {
   const { ready, authenticated, user, login } = usePrivy();
   const { wallets } = useWallets();
   const farcasterContext = useFarcasterContext();
-  
+
   const [isLoading, setIsLoading] = useState(false);
   const [txHash, setTxHash] = useState<string | undefined>();
 
@@ -22,12 +22,12 @@ export function usePrivyClaim() {
     if (user?.farcaster?.fid) {
       return { type: 'farcaster', fid: user.farcaster.fid };
     }
-    
+
     // Check if we're in a Farcaster Mini-App context
     if (farcasterContext.isFrameContext && farcasterContext.fid) {
       return { type: 'farcaster', fid: farcasterContext.fid };
     }
-    
+
     // Otherwise, use Base App attestation
     const baseId = user?.id || wallets[0]?.address;
     return { type: 'baseapp', baseId };
@@ -50,16 +50,12 @@ export function usePrivyClaim() {
 
       // Import contract ABI
       const { FAUCET_ABI } = await import('@/config/constants');
-      const faucet = new ethers.Contract(
-        FAUCET_CONTRACT_ADDRESS,
-        FAUCET_ABI,
-        signer
-      );
+      const faucet = new ethers.Contract(FAUCET_CONTRACT_ADDRESS, FAUCET_ABI, signer);
 
       // Call claimFarcaster() on contract
       const tx = await faucet.claimFarcaster();
       const receipt = await tx.wait();
-      
+
       return receipt.hash;
     } catch (error: any) {
       throw new Error(error.message || 'Farcaster claim failed');
@@ -100,16 +96,12 @@ export function usePrivyClaim() {
       const signer = await ethersProvider.getSigner();
 
       const { FAUCET_ABI } = await import('@/config/constants');
-      const faucet = new ethers.Contract(
-        FAUCET_CONTRACT_ADDRESS,
-        FAUCET_ABI,
-        signer
-      );
+      const faucet = new ethers.Contract(FAUCET_CONTRACT_ADDRESS, FAUCET_ABI, signer);
 
       // Call claimBaseApp() on contract
       const tx = await faucet.claimBaseApp(baseId, signature);
       const receipt = await tx.wait();
-      
+
       return receipt.hash;
     } catch (error: any) {
       throw new Error(error.message || 'Base App claim failed');
@@ -141,8 +133,8 @@ export function usePrivyClaim() {
       if (IS_MOCK_MODE) {
         // Mock mode
         toast.loading('Preparing claim...', { id: 'claim' });
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+
         const mockHash = `0x${Math.random().toString(16).slice(2)}...`;
         setTxHash(mockHash);
         toast.success('Claim successful! 🎉', { id: 'claim' });
@@ -151,7 +143,7 @@ export function usePrivyClaim() {
 
       // Determine claim type
       const claimInfo = getClaimType();
-      
+
       toast.loading('Preparing claim...', { id: 'claim' });
 
       let hash: string;
@@ -201,4 +193,3 @@ export function usePrivyClaim() {
     login,
   };
 }
-

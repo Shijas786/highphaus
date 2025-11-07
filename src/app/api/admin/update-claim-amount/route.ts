@@ -11,25 +11,25 @@ export async function GET(_request: NextRequest) {
     const response = await fetch(
       'https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd'
     );
-    
+
     if (!response.ok) {
       throw new Error('Failed to fetch ETH price');
     }
-    
+
     const data = await response.json();
     const ethPrice = data.ethereum?.usd;
-    
+
     if (!ethPrice) {
       throw new Error('Invalid price data');
     }
-    
+
     // Calculate recommended claim amount for $0.10 USD
-    const recommendation = getRecommendedClaimAmount(0.10, ethPrice);
-    
+    const recommendation = getRecommendedClaimAmount(0.1, ethPrice);
+
     return NextResponse.json({
       success: true,
       currentEthPrice: ethPrice,
-      targetUsdValue: 0.10,
+      targetUsdValue: 0.1,
       recommended: {
         ethAmount: recommendation.ethAmount,
         weiAmount: recommendation.weiAmount.toString(),
@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { currentClaimAmountWei } = body;
-    
+
     if (!currentClaimAmountWei) {
       return NextResponse.json(
         {
@@ -70,26 +70,26 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    
+
     // Fetch current ETH price
     const response = await fetch(
       'https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd'
     );
-    
+
     const data = await response.json();
     const ethPrice = data.ethereum?.usd || 2500;
-    
+
     // Calculate current USD value
     const currentEthAmount = Number(currentClaimAmountWei) / 1e18;
     const currentUsdValue = currentEthAmount * ethPrice;
-    const targetUsdValue = 0.10;
-    
+    const targetUsdValue = 0.1;
+
     // Check if deviation is more than 10%
     const deviation = Math.abs(currentUsdValue - targetUsdValue) / targetUsdValue;
     const needsUpdate = deviation > 0.1;
-    
+
     const recommendation = getRecommendedClaimAmount(targetUsdValue, ethPrice);
-    
+
     return NextResponse.json({
       success: true,
       needsUpdate,
@@ -100,11 +100,13 @@ export async function POST(request: NextRequest) {
         targetUsdValue,
         deviation: `${(deviation * 100).toFixed(2)}%`,
       },
-      recommendation: needsUpdate ? {
-        newClaimAmountWei: recommendation.weiAmount.toString(),
-        newClaimAmountEth: recommendation.ethAmount,
-        ethPrice,
-      } : null,
+      recommendation: needsUpdate
+        ? {
+            newClaimAmountWei: recommendation.weiAmount.toString(),
+            newClaimAmountEth: recommendation.ethAmount,
+            ethPrice,
+          }
+        : null,
     });
   } catch (error) {
     console.error('Failed to check claim amount:', error);
@@ -117,4 +119,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-

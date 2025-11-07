@@ -77,5 +77,3 @@ export type ClaimedEvent = {
   amount: bigint;
   timestamp: bigint;
 };
-
-

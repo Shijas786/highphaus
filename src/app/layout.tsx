@@ -7,7 +7,8 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'highphaus - Community ETH Faucet',
-  description: 'Get $0.10 worth of ETH instantly. Contribute to highphaus and claim up to $1. OG NFT for first 1000 contributors.',
+  description:
+    'Get $0.10 worth of ETH instantly. Contribute to highphaus and claim up to $1. OG NFT for first 1000 contributors.',
   keywords: ['highphaus', 'ETH', 'Faucet', 'Base', 'NFT', 'Community'],
   authors: [{ name: 'highphaus' }],
   openGraph: {
@@ -29,11 +30,7 @@ export const viewport: Viewport = {
   maximumScale: 5,
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="dark">
       <head>
@@ -48,4 +45,3 @@ export default function RootLayout({
     </html>
   );
 }
-

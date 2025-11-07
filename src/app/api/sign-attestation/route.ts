@@ -18,15 +18,12 @@ export async function POST(request: NextRequest) {
     }
 
     if (!baseId) {
-      return NextResponse.json(
-        { success: false, error: 'Missing baseId' },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: 'Missing baseId' }, { status: 400 });
     }
 
     //Get backend signer private key
     const signerPrivateKey = process.env.SIGNER_PRIVATE_KEY;
-    
+
     if (!signerPrivateKey) {
       console.error('SIGNER_PRIVATE_KEY not configured');
       return NextResponse.json(
@@ -41,7 +38,7 @@ export async function POST(request: NextRequest) {
     // Create message hash matching contract's logic:
     // bytes32 digest = keccak256(abi.encodePacked(wallet, "baseapp", baseId, contractAddress))
     const faucetContract = process.env.NEXT_PUBLIC_FAUCET_CONTRACT_ADDRESS;
-    
+
     const digest = ethers.solidityPackedKeccak256(
       ['address', 'string', 'string', 'address'],
       [wallet, 'baseapp', baseId, faucetContract]
@@ -70,4 +67,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-

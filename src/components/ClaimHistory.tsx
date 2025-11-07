@@ -41,9 +41,7 @@ export function ClaimHistory() {
               </div>
 
               <div className="flex items-center gap-4">
-                <p className="text-sm font-semibold text-baseCyan">
-                  +{formatEth(item.amount)} ETH
-                </p>
+                <p className="text-sm font-semibold text-baseCyan">+{formatEth(item.amount)} ETH</p>
                 {item.txHash && (
                   <a
                     href={`https://basescan.org/tx/${item.txHash}`}
@@ -62,5 +60,3 @@ export function ClaimHistory() {
     </motion.div>
   );
 }
-
-

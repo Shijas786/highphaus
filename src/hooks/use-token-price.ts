@@ -18,13 +18,13 @@ export function useTokenPrices(tokenIds: string[] = ['ethereum', 'usd-coin', 'te
         const response = await fetch(
           `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd`
         );
-        
+
         if (!response.ok) {
           throw new Error('Failed to fetch token prices');
         }
-        
+
         const data = await response.json();
-        
+
         // Convert to our format
         const prices: TokenPrices = {
           ETH: data.ethereum?.usd || 2500,
@@ -33,7 +33,7 @@ export function useTokenPrices(tokenIds: string[] = ['ethereum', 'usd-coin', 'te
           DAI: data.dai?.usd || 1,
           WETH: data.ethereum?.usd || 2500,
         };
-        
+
         return prices;
       } catch (error) {
         console.error('Failed to fetch token prices:', error);
@@ -61,11 +61,10 @@ export function calculateTokenUsdValue(
   prices: TokenPrices | undefined
 ): number {
   if (!prices || !amount) return 0;
-  
+
   const tokenAmount = parseFloat(amount);
   if (isNaN(tokenAmount)) return 0;
-  
+
   const price = prices[tokenSymbol] || 0;
   return tokenAmount * price;
 }
-

@@ -34,5 +34,3 @@ export function useStats() {
     refetchInterval: 5000, // Refetch every 5 seconds
   });
 }
-
-

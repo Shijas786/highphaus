@@ -14,24 +14,20 @@ import { useFarcaster } from './FarcasterProvider';
 
 export function FaucetCard() {
   const { data: ethPrice } = useEthPrice();
-  const { data: eligibility, isLoading: checkingEligibility, refetch: checkEligibility } = useEligibility();
-  const { user: farcasterUser, isMiniapp, isLoading: farcasterLoading } = useFarcaster();
-  
-  // Use existing Privy claim hook
   const {
-    claim,
-    isLoading,
-    txHash,
-    ready,
-    authenticated,
-    user,
-    walletAddress,
-    login,
-  } = usePrivyClaim();
-  
+    data: eligibility,
+    isLoading: checkingEligibility,
+    refetch: checkEligibility,
+  } = useEligibility();
+  const { user: farcasterUser, isMiniapp, isLoading: farcasterLoading } = useFarcaster();
+
+  // Use existing Privy claim hook
+  const { claim, isLoading, txHash, ready, authenticated, user, walletAddress, login } =
+    usePrivyClaim();
+
   const address = walletAddress;
   const isConnected = authenticated && !!address;
-  
+
   const [showConfetti, setShowConfetti] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [fillPercent] = useState(50); // Static fill animation
@@ -66,7 +62,8 @@ export function FaucetCard() {
   };
 
   // Calculate ETH amount from USD
-  const claimAmountEth = ethPrice && ethPrice > 0 ? (CLAIM_AMOUNT_USD / ethPrice).toFixed(6) : '0.0000';
+  const claimAmountEth =
+    ethPrice && ethPrice > 0 ? (CLAIM_AMOUNT_USD / ethPrice).toFixed(6) : '0.0000';
 
   const getStatusContent = () => {
     if (!ready) {
@@ -75,14 +72,14 @@ export function FaucetCard() {
         canClaim: false,
       };
     }
-    
+
     if (!authenticated) {
       return {
         message: 'Login with Farcaster or Wallet to claim',
         canClaim: false,
       };
     }
-    
+
     if (!isConnected || !address) {
       return {
         message: 'Connect your wallet to claim ETH',
@@ -110,7 +107,6 @@ export function FaucetCard() {
         canClaim: false,
       };
     }
-
 
     if (eligibility && !eligibility.eligible) {
       const cooldownText = eligibility.cooldownRemaining
@@ -260,13 +256,9 @@ export function FaucetCard() {
           {/* Claim Amount Display */}
           <div className="text-center space-y-2">
             <p className="text-sm text-gray-400">Claim Amount</p>
-            <p className="text-2xl font-bold text-white">
-              ${CLAIM_AMOUNT_USD.toFixed(2)} USD
-            </p>
+            <p className="text-2xl font-bold text-white">${CLAIM_AMOUNT_USD.toFixed(2)} USD</p>
             {ethPrice && ethPrice > 0 && (
-              <p className="text-sm text-gray-400">
-                ≈ {claimAmountEth} ETH
-              </p>
+              <p className="text-sm text-gray-400">≈ {claimAmountEth} ETH</p>
             )}
             <p className="text-xs text-green-400 flex items-center justify-center gap-1">
               <span>⚡</span>
@@ -282,12 +274,7 @@ export function FaucetCard() {
 
           {/* Login/Claim Button */}
           {!authenticated ? (
-            <Button
-              variant="glow"
-              size="xl"
-              className="w-full"
-              onClick={login}
-            >
+            <Button variant="glow" size="xl" className="w-full" onClick={login}>
               <Droplet className="w-5 h-5" />
               <span>{isMiniapp ? 'Login with Farcaster' : 'Login to Claim'}</span>
             </Button>
@@ -331,5 +318,3 @@ export function FaucetCard() {
     </div>
   );
 }
-
-

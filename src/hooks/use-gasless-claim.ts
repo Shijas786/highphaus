@@ -38,7 +38,7 @@ export function useGaslessClaim() {
       toast.error('Please login first');
       return;
     }
-    
+
     if (!address) {
       toast.error('No wallet available');
       return;
@@ -176,9 +176,7 @@ export function useGaslessClaim() {
     } catch (err: unknown) {
       console.error('Gasless claim error:', err);
       const errorMessage =
-        err instanceof Error
-          ? err.message
-          : 'Failed to process gasless claim. Please try again.';
+        err instanceof Error ? err.message : 'Failed to process gasless claim. Please try again.';
       setError(errorMessage);
       toast.error(errorMessage, { id: 'gasless-claim' });
     } finally {
@@ -195,4 +193,3 @@ export function useGaslessClaim() {
     isPimlicoConfigured,
   };
 }
-

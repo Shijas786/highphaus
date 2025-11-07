@@ -2,9 +2,7 @@ import { Address } from 'viem';
 import { base, baseSepolia } from 'viem/chains';
 
 // Validate required environment variables
-const requiredEnvVars = [
-  'NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID',
-] as const;
+const requiredEnvVars = ['NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID'] as const;
 
 requiredEnvVars.forEach((envVar) => {
   if (!process.env[envVar]) {
@@ -14,24 +12,22 @@ requiredEnvVars.forEach((envVar) => {
 
 export const IS_MOCK_MODE = process.env.NEXT_PUBLIC_MOCK_MODE === 'true';
 
-export const WALLETCONNECT_PROJECT_ID = 
+export const WALLETCONNECT_PROJECT_ID =
   process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'YOUR_PROJECT_ID_HERE';
 
-export const PIMLICO_API_KEY = 
-  process.env.NEXT_PUBLIC_PIMLICO_API_KEY || '';
+export const PIMLICO_API_KEY = process.env.NEXT_PUBLIC_PIMLICO_API_KEY || '';
 
-export const FAUCET_CONTRACT_ADDRESS = 
-  (process.env.NEXT_PUBLIC_FAUCET_CONTRACT_ADDRESS as Address) || 
+export const FAUCET_CONTRACT_ADDRESS =
+  (process.env.NEXT_PUBLIC_FAUCET_CONTRACT_ADDRESS as Address) ||
   '0x0000000000000000000000000000000000000000';
 
 // Claim amount in USD - we calculate ETH amount dynamically based on price
-export const CLAIM_AMOUNT_USD = 0.10; // $0.10 worth of ETH
+export const CLAIM_AMOUNT_USD = 0.1; // $0.10 worth of ETH
 
 // ONE-TIME CLAIM ONLY - No cooldown, each wallet can only claim once EVER
 export const ONE_TIME_CLAIM_ONLY = true;
 
-export const API_URL = 
-  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
 
 // Chain configurations
 export const SUPPORTED_CHAINS = [base, baseSepolia];
@@ -129,5 +125,3 @@ export const MOCK_STATS = {
   claimsPerMinute: 0.5,
   contractBalance: '100.0',
 };
-
-

@@ -59,5 +59,3 @@ export function useEligibility() {
     refetchInterval: 10000, // Refetch every 10 seconds
   });
 }
-
-

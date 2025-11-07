@@ -136,12 +136,7 @@ export function getSupportedTokens(isTestnet = false): Record<string, Token> {
  */
 export function getDefaultDonationTokens(isTestnet = false): Token[] {
   const tokens = getSupportedTokens(isTestnet);
-  return [
-    tokens.ETH,
-    tokens.USDC,
-    tokens.USDT,
-    tokens.DAI,
-  ].filter(Boolean);
+  return [tokens.ETH, tokens.USDC, tokens.USDT, tokens.DAI].filter(Boolean);
 }
 
 /**
@@ -154,7 +149,7 @@ export function calculateUsdValue(
 ): number {
   const amount = parseFloat(tokenAmount);
   if (isNaN(amount) || amount <= 0) return 0;
-  
+
   return amount * tokenPrice;
 }
 
@@ -164,11 +159,10 @@ export function calculateUsdValue(
 export function formatTokenAmount(amount: string, decimals: number): string {
   const num = parseFloat(amount);
   if (isNaN(num)) return '0';
-  
+
   // Show appropriate decimal places based on token
   if (decimals === 6) {
     return num.toFixed(2); // USDC, USDT - 2 decimals
   }
   return num.toFixed(4); // ETH, DAI - 4 decimals
 }
-

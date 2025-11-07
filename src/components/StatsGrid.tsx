@@ -70,9 +70,7 @@ export function StatsGrid() {
 
               {/* Icon */}
               <div className="flex items-start justify-between mb-4">
-                <div
-                  className={`p-2 rounded-lg bg-gradient-to-br ${stat.color} bg-opacity-20`}
-                >
+                <div className={`p-2 rounded-lg bg-gradient-to-br ${stat.color} bg-opacity-20`}>
                   <Icon className="w-5 h-5 text-white" />
                 </div>
                 <motion.div
@@ -106,5 +104,3 @@ export function StatsGrid() {
     </div>
   );
 }
-
-

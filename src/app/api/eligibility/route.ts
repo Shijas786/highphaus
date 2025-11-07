@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     }
 
     const addressLower = address.toLowerCase();
-    
+
     // ONE-TIME CLAIM ONLY: Check if wallet has ever claimed
     if (claimedWallets.has(addressLower)) {
       return NextResponse.json({
@@ -79,5 +79,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-
-

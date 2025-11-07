@@ -31,7 +31,7 @@ export function AdminPanel() {
     }
 
     toast.loading('Processing top-up...', { id: 'topup' });
-    
+
     // Simulate top-up
     setTimeout(() => {
       const newBalance = (parseFloat(contractBalance) + parseFloat(topUpAmount)).toFixed(4);
@@ -89,10 +89,7 @@ export function AdminPanel() {
         <h2 className="text-3xl font-bold bg-gradient-to-r from-baseBlue to-baseCyan bg-clip-text text-transparent">
           Admin Dashboard
         </h2>
-        <Button
-          variant="outline"
-          onClick={() => setIsAuthenticated(false)}
-        >
+        <Button variant="outline" onClick={() => setIsAuthenticated(false)}>
           Logout
         </Button>
       </div>
@@ -107,9 +104,7 @@ export function AdminPanel() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-4xl font-bold text-baseCyan mb-4">
-              {contractBalance} ETH
-            </p>
+            <p className="text-4xl font-bold text-baseCyan mb-4">{contractBalance} ETH</p>
             <div className="space-y-2">
               <Input
                 type="number"
@@ -134,11 +129,7 @@ export function AdminPanel() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={handleRefreshStats}
-            >
+            <Button variant="outline" className="w-full" onClick={handleRefreshStats}>
               <RefreshCw className="w-4 h-4 mr-2" />
               Refresh Statistics
             </Button>
@@ -183,5 +174,3 @@ export function AdminPanel() {
     </motion.div>
   );
 }
-
-

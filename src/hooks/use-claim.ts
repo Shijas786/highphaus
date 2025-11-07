@@ -60,7 +60,7 @@ export function useClaim() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ address, txHash: mockHash }),
           });
-          
+
           // Also notify eligibility endpoint
           await fetch('/api/eligibility', {
             method: 'POST',
@@ -95,7 +95,7 @@ export function useClaim() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ address, txHash: hash }),
         });
-        
+
         // Also notify eligibility endpoint
         await fetch('/api/eligibility', {
           method: 'POST',
@@ -122,5 +122,3 @@ export function useClaim() {
     error,
   };
 }
-
-

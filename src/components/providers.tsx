@@ -25,8 +25,8 @@ export function Providers({ children }: { children: ReactNode }) {
       <FarcasterProvider>
         <PrivyProviderWrapper>
           {children}
-          <Toaster 
-            position="top-right" 
+          <Toaster
+            position="top-right"
             theme="dark"
             toastOptions={{
               style: {
@@ -41,5 +41,3 @@ export function Providers({ children }: { children: ReactNode }) {
     </QueryClientProvider>
   );
 }
-
-

@@ -24,16 +24,16 @@ let isInitialized = false;
  */
 export function isFarcasterMiniapp(): boolean {
   if (typeof window === 'undefined') return false;
-  
+
   // Best indicator: running in iframe
   const isInIframe = window.parent !== window;
-  
+
   // Additional checks for Farcaster-specific context
-  const hasFarcasterIndicators = 
+  const hasFarcasterIndicators =
     window.location.href.includes('farcaster') ||
     window.location.href.includes('warpcast') ||
     (window as any).__FARCASTER__ === true;
-  
+
   return isInIframe || hasFarcasterIndicators;
 }
 
@@ -62,7 +62,7 @@ export async function initializeFarcasterSDK(): Promise<FarcasterContext | null>
     // Call actions.ready() to hide loading screen
     // Reference: https://miniapps.farcaster.xyz/docs/getting-started#making-your-app-display
     await sdk.actions.ready();
-    
+
     console.log('✅ Farcaster SDK initialized', context);
 
     return context;
@@ -86,7 +86,7 @@ export async function getFarcasterUser(): Promise<FarcasterUser | null> {
  */
 export function getFarcasterUserFromPrivy(privyUser: any): FarcasterUser | null {
   if (!privyUser?.farcaster) return null;
-  
+
   return {
     fid: privyUser.farcaster.fid,
     username: privyUser.farcaster.username,
@@ -102,4 +102,3 @@ export function formatFarcasterUsername(username?: string): string {
   if (!username) return '';
   return username.startsWith('@') ? username : `@${username}`;
 }
-

@@ -89,7 +89,7 @@ export function AnimatedBackground() {
       ))}
 
       {/* Grid Pattern */}
-      <div 
+      <div
         className="absolute inset-0 opacity-[0.03]"
         style={{
           backgroundImage: `
@@ -102,4 +102,3 @@ export function AnimatedBackground() {
     </div>
   );
 }
-

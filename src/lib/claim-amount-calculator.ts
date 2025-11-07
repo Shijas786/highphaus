@@ -4,13 +4,10 @@ import { parseUnits, formatUnits } from 'viem';
  * Calculate the exact ETH amount needed to equal a target USD value
  * at the current ETH price
  */
-export function calculateClaimAmountInWei(
-  targetUsdValue: number,
-  currentEthPrice: number
-): bigint {
+export function calculateClaimAmountInWei(targetUsdValue: number, currentEthPrice: number): bigint {
   // Calculate ETH amount needed
   const ethAmount = targetUsdValue / currentEthPrice;
-  
+
   // Convert to wei (18 decimals)
   return parseUnits(ethAmount.toFixed(18), 18);
 }
@@ -18,13 +15,10 @@ export function calculateClaimAmountInWei(
 /**
  * Calculate USD value of a given ETH amount (in wei)
  */
-export function calculateUsdValue(
-  ethAmountInWei: bigint,
-  currentEthPrice: number
-): number {
+export function calculateUsdValue(ethAmountInWei: bigint, currentEthPrice: number): number {
   // Convert wei to ETH
   const ethAmount = parseFloat(formatUnits(ethAmountInWei, 18));
-  
+
   // Calculate USD value
   return ethAmount * currentEthPrice;
 }
@@ -48,7 +42,7 @@ export function shouldUpdateClaimAmount(
 ): boolean {
   const currentUsdValue = calculateUsdValue(currentClaimAmountInWei, currentEthPrice);
   const deviation = Math.abs(currentUsdValue - targetUsdValue) / targetUsdValue;
-  
+
   return deviation > tolerance;
 }
 
@@ -56,7 +50,7 @@ export function shouldUpdateClaimAmount(
  * Get recommended claim amount update
  */
 export function getRecommendedClaimAmount(
-  targetUsdValue: number = 0.10,
+  targetUsdValue: number = 0.1,
   currentEthPrice: number
 ): {
   ethAmount: string;
@@ -66,7 +60,7 @@ export function getRecommendedClaimAmount(
 } {
   const weiAmount = calculateClaimAmountInWei(targetUsdValue, currentEthPrice);
   const ethAmount = formatEthAmount(weiAmount);
-  
+
   return {
     ethAmount,
     weiAmount,
@@ -74,4 +68,3 @@ export function getRecommendedClaimAmount(
     ethPrice: currentEthPrice,
   };
 }
-

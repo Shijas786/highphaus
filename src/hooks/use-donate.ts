@@ -38,14 +38,16 @@ export function useDonate() {
       const provider = await wallets[0].getEthereumProvider();
 
       // Send transaction
-      const hash = await provider.request({
+      const hash = (await provider.request({
         method: 'eth_sendTransaction',
-        params: [{
-          from: address,
-          to: FAUCET_CONTRACT_ADDRESS,
-          value: `0x${amount.toString(16)}`,
-        }],
-      }) as `0x${string}`;
+        params: [
+          {
+            from: address,
+            to: FAUCET_CONTRACT_ADDRESS,
+            value: `0x${amount.toString(16)}`,
+          },
+        ],
+      })) as `0x${string}`;
 
       setTxHash(hash);
       toast.loading('Confirming transaction...', { id: 'donate' });
@@ -55,7 +57,7 @@ export function useDonate() {
         chain: base,
         transport: http(),
       });
-      
+
       await publicClient.waitForTransactionReceipt({ hash });
 
       setIsSuccess(true);
@@ -93,7 +95,10 @@ export function useDonate() {
   /**
    * Support with ERC20 token (USDC, USDT, DAI, etc)
    */
-  const donateToken = async (token: Token, amountToken: string): Promise<`0x${string}` | undefined> => {
+  const donateToken = async (
+    token: Token,
+    amountToken: string
+  ): Promise<`0x${string}` | undefined> => {
     if (!address || !wallets[0]) {
       toast.error('Please connect your wallet');
       return;
@@ -117,19 +122,22 @@ export function useDonate() {
       const provider = await wallets[0].getEthereumProvider();
 
       // Encode transfer function call
-      const transferData = `0xa9059cbb${
-        FAUCET_CONTRACT_ADDRESS.slice(2).padStart(64, '0')
-      }${amount.toString(16).padStart(64, '0')}`;
+      const transferData = `0xa9059cbb${FAUCET_CONTRACT_ADDRESS.slice(2).padStart(
+        64,
+        '0'
+      )}${amount.toString(16).padStart(64, '0')}`;
 
       // Send transaction
-      const hash = await provider.request({
+      const hash = (await provider.request({
         method: 'eth_sendTransaction',
-        params: [{
-          from: address,
-          to: token.address,
-          data: transferData,
-        }],
-      }) as `0x${string}`;
+        params: [
+          {
+            from: address,
+            to: token.address,
+            data: transferData,
+          },
+        ],
+      })) as `0x${string}`;
 
       setTxHash(hash);
       toast.loading('Confirming transaction...', { id: 'donate' });
@@ -139,7 +147,7 @@ export function useDonate() {
         chain: base,
         transport: http(),
       });
-      
+
       await publicClient.waitForTransactionReceipt({ hash });
 
       setIsSuccess(true);
@@ -195,4 +203,3 @@ export function useDonate() {
     error,
   };
 }
-

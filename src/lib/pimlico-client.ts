@@ -40,7 +40,7 @@ export function createPimlicoBundlerClient(chain: Chain = base) {
 
 /**
  * Create a Safe smart account for a user
- * 
+ *
  * @param userPrivateKey - The user's private key (can be generated or from wallet)
  * @param publicClient - The public client instance
  * @returns Smart account instance
@@ -63,7 +63,7 @@ export async function createUserSmartAccount(
 
 /**
  * Create a smart account client that can send user operations
- * 
+ *
  * @param account - The smart account instance
  * @param chain - The blockchain to operate on
  * @param pimlicoClient - The Pimlico bundler client
@@ -92,7 +92,7 @@ export async function createPimlicoSmartAccountClient(
 /**
  * Generate a deterministic private key for a user based on their address
  * This allows the same smart account to be derived for the same user
- * 
+ *
  * WARNING: In production, consider using a more secure key derivation method
  * or storing keys encrypted on the backend
  */
@@ -103,7 +103,7 @@ export function generateUserPrivateKey(userAddress: string): Hex {
     .reduce((acc, char) => acc + char.charCodeAt(0), 0)
     .toString(16)
     .padStart(64, '0');
-  
+
   return `0x${hash}` as Hex;
 }
 
@@ -119,4 +119,3 @@ export async function getSmartAccountAddress(
   const account = await createUserSmartAccount(userPrivateKey, publicClient);
   return account.address;
 }
-

@@ -30,7 +30,7 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
         if (inMiniapp) {
           // Initialize SDK and get user context
           const context = await initializeFarcasterSDK();
-          
+
           if (context?.user) {
             setUser({
               fid: context.user.fid,
@@ -60,4 +60,3 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
 export function useFarcaster() {
   return useContext(FarcasterContext);
 }
-
