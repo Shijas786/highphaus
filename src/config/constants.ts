@@ -53,51 +53,58 @@ export const TOAST_DURATION = {
   LONG: 7000,
 } as const;
 
-// Contract ABI for Faucet
+// Contract ABI for BaseFarcasterFaucet
 export const FAUCET_ABI = [
   {
     inputs: [],
-    name: 'claim',
+    name: 'claimFarcaster',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'address', name: 'user', type: 'address' }],
-    name: 'canClaim',
+    inputs: [],
+    name: 'getWeiAmount',
+    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    name: 'fidClaimed',
     outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
     stateMutability: 'view',
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'address', name: 'user', type: 'address' }],
-    name: 'lastClaimTime',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    inputs: [],
+    name: 'owner',
+    outputs: [{ internalType: 'address', name: '', type: 'address' }],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [],
-    name: 'claimAmount',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    name: 'idRegistry',
+    outputs: [{ internalType: 'address', name: '', type: 'address' }],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [],
-    name: 'cooldownTime',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    name: 'priceFeed',
+    outputs: [{ internalType: 'address', name: '', type: 'address' }],
     stateMutability: 'view',
     type: 'function',
   },
   {
     anonymous: false,
     inputs: [
-      { indexed: true, internalType: 'address', name: 'recipient', type: 'address' },
-      { indexed: false, internalType: 'uint256', name: 'amount', type: 'uint256' },
-      { indexed: false, internalType: 'uint256', name: 'timestamp', type: 'uint256' },
+      { indexed: true, internalType: 'address', name: 'user', type: 'address' },
+      { indexed: false, internalType: 'uint256', name: 'fid', type: 'uint256' },
+      { indexed: false, internalType: 'uint256', name: 'weiAmount', type: 'uint256' },
     ],
-    name: 'Claimed',
+    name: 'ClaimedFarcaster',
     type: 'event',
   },
 ] as const;
