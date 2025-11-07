@@ -41,17 +41,15 @@ export function FaucetCard() {
     }
   }, [txHash, checkEligibility]);
 
-  // Auto-login with Farcaster if in Mini-App
+  // Log Farcaster context when detected (but don't auto-login)
   useEffect(() => {
-    if (isMiniapp && farcasterUser && !authenticated && ready && !farcasterLoading) {
-      console.log('🟣 Auto-logging in with Farcaster from Mini-App', {
+    if (isMiniapp && farcasterUser && !farcasterLoading) {
+      console.log('🟣 Farcaster Mini-App detected', {
         fid: farcasterUser.fid,
         username: farcasterUser.username,
       });
-      // Trigger Privy login (which will prioritize Farcaster in Mini-App)
-      login();
     }
-  }, [isMiniapp, farcasterUser, authenticated, ready, farcasterLoading, login]);
+  }, [isMiniapp, farcasterUser, farcasterLoading]);
 
   const handleClaim = async () => {
     if (!authenticated) {
