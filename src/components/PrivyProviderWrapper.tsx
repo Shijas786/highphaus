@@ -29,11 +29,10 @@ export default function PrivyProviderWrapper({ children }: { children: React.Rea
             createOnLogin: 'all-users', // Auto-create wallet for all users
           },
         },
-        // Login methods - When in Mini-App, skip Farcaster SIWF (they're already in Farcaster!)
-        // Just show wallet/email options
+        // Login methods - When in Mini-App, prioritize wallet (embedded wallet auto-creates)
         loginMethods: isInMiniApp
-          ? ['wallet', 'email'] // Skip redundant Farcaster auth in Mini-App
-          : ['farcaster', 'wallet', 'email', 'sms'], // Show Farcaster for web
+          ? ['wallet'] // Auto-create embedded wallet in Mini-App
+          : ['farcaster', 'wallet', 'email', 'sms'], // Show all options for web
         // Supported chains
         defaultChain: IS_MOCK_MODE ? baseSepolia : base,
         supportedChains: [base, baseSepolia],

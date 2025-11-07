@@ -63,12 +63,29 @@ export async function initializeFarcasterSDK(): Promise<FarcasterContext | null>
     // Reference: https://miniapps.farcaster.xyz/docs/getting-started#making-your-app-display
     await sdk.actions.ready();
 
-    console.log('✅ Farcaster SDK initialized', context);
+    // Note: context contains user info, but wallet must be connected separately
+    // Farcaster provides user identity, but wallet signing is separate
 
     return context;
   } catch (error) {
-    console.error('Failed to initialize Farcaster SDK:', error);
+    // Silently fail - not in Farcaster context
     return null;
+  }
+}
+
+/**
+ * Check if Farcaster wallet is available
+ * Reference: https://miniapps.farcaster.xyz/docs/guides/ethereum
+ */
+export async function hasFarcasterWallet(): Promise<boolean> {
+  try {
+    if (typeof window === 'undefined') return false;
+
+    const { sdk } = await import('@farcaster/miniapp-sdk');
+    const wallet = await sdk.wallet.ethProvider;
+    return !!wallet;
+  } catch {
+    return false;
   }
 }
 
