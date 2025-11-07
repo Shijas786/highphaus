@@ -7,8 +7,8 @@ import { IS_MOCK_MODE } from '@/config/constants';
 export default function PrivyProviderWrapper({ children }: { children: React.ReactNode }) {
   const appId = process.env.NEXT_PUBLIC_PRIVY_APP_ID || 'cmhni9xo30171l50cunm9361e';
 
-  if (!appId || appId === 'cmhni9xo30171l50cunm9361e') {
-    console.log('✅ Using Privy App ID:', appId);
+  if (!appId) {
+    console.warn('NEXT_PUBLIC_PRIVY_APP_ID not set');
   }
 
   // Detect if in Farcaster Mini-App (iframe)

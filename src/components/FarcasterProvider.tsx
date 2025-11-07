@@ -41,9 +41,8 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
           }
         }
       } catch (error) {
-        // Silently fail - app should still work without Farcaster context
+        console.error('Error loading Farcaster context:', error);
       } finally {
-        // Always set loading to false so app doesn't hang
         setIsLoading(false);
       }
     }

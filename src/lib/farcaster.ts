@@ -63,12 +63,9 @@ export async function initializeFarcasterSDK(): Promise<FarcasterContext | null>
     // Reference: https://miniapps.farcaster.xyz/docs/getting-started#making-your-app-display
     await sdk.actions.ready();
 
-    // Note: context contains user info, but wallet must be connected separately
-    // Farcaster provides user identity, but wallet signing is separate
-
     return context;
   } catch (error) {
-    // Silently fail - not in Farcaster context
+    console.error('Failed to initialize Farcaster SDK:', error);
     return null;
   }
 }
