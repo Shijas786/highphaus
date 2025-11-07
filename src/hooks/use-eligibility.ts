@@ -1,15 +1,12 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { useWallets, usePrivy } from '@privy-io/react-auth';
+import { useAccount } from 'wagmi';
 import { ClaimStatus } from '@/types';
 import { IS_MOCK_MODE } from '@/config/constants';
 
 export function useEligibility() {
-  const { wallets } = useWallets();
-  const { authenticated } = usePrivy();
-  const address = wallets[0]?.address;
-  const isConnected = authenticated && !!address;
+  const { address, isConnected } = useAccount();
 
   return useQuery<ClaimStatus>({
     queryKey: ['eligibility', address],

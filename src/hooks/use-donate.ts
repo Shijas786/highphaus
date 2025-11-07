@@ -1,16 +1,16 @@
 'use client';
 
 import { useState } from 'react';
-import { useWallets } from '@privy-io/react-auth';
-import { parseUnits, Address, createPublicClient, http } from 'viem';
-import { base } from 'viem/chains';
+import { useAccount, useWalletClient, useSendTransaction } from 'wagmi';
+import { parseUnits } from 'viem';
 import { toast } from 'sonner';
 import { Token } from '@/config/tokens';
 import { FAUCET_CONTRACT_ADDRESS } from '@/config/constants';
 
 export function useDonate() {
-  const { wallets } = useWallets();
-  const address = wallets[0]?.address as Address | undefined;
+  const { address, isConnected } = useAccount();
+  const { data: walletClient } = useWalletClient();
+  const { sendTransactionAsync } = useSendTransaction();
   const [txHash, setTxHash] = useState<`0x${string}` | undefined>();
   const [error, setError] = useState<string | undefined>();
   const [isSuccess, setIsSuccess] = useState(false);
@@ -20,7 +20,7 @@ export function useDonate() {
    * Donate ETH (native currency)
    */
   const donateEth = async (amountEth: string): Promise<`0x${string}` | undefined> => {
-    if (!address || !wallets[0]) {
+    if (!address || !isConnected) {
       toast.error('Please connect your wallet');
       return;
     }
@@ -34,32 +34,13 @@ export function useDonate() {
 
       const amount = parseUnits(amountEth, 18);
 
-      // Get embedded wallet provider
-      const provider = await wallets[0].getEthereumProvider();
-
-      // Send transaction
-      const hash = (await provider.request({
-        method: 'eth_sendTransaction',
-        params: [
-          {
-            from: address,
-            to: FAUCET_CONTRACT_ADDRESS,
-            value: `0x${amount.toString(16)}`,
-          },
-        ],
-      })) as `0x${string}`;
-
-      setTxHash(hash);
-      toast.loading('Confirming transaction...', { id: 'donate' });
-
-      // Wait for confirmation
-      const publicClient = createPublicClient({
-        chain: base,
-        transport: http(),
+      // Send ETH transaction
+      const hash = await sendTransactionAsync({
+        to: FAUCET_CONTRACT_ADDRESS,
+        value: amount,
       });
 
-      await publicClient.waitForTransactionReceipt({ hash });
-
+      setTxHash(hash);
       setIsSuccess(true);
       toast.success('Contribution successful! 🎉 OG NFT eligibility recorded', { id: 'donate' });
 
@@ -99,7 +80,7 @@ export function useDonate() {
     token: Token,
     amountToken: string
   ): Promise<`0x${string}` | undefined> => {
-    if (!address || !wallets[0]) {
+    if (!address || !isConnected || !walletClient) {
       toast.error('Please connect your wallet');
       return;
     }
@@ -118,38 +99,19 @@ export function useDonate() {
 
       const amount = parseUnits(amountToken, token.decimals);
 
-      // Get embedded wallet provider
-      const provider = await wallets[0].getEthereumProvider();
-
-      // Encode transfer function call
+      // Encode transfer function call: transfer(address to, uint256 amount)
       const transferData = `0xa9059cbb${FAUCET_CONTRACT_ADDRESS.slice(2).padStart(
         64,
         '0'
       )}${amount.toString(16).padStart(64, '0')}`;
 
-      // Send transaction
-      const hash = (await provider.request({
-        method: 'eth_sendTransaction',
-        params: [
-          {
-            from: address,
-            to: token.address,
-            data: transferData,
-          },
-        ],
-      })) as `0x${string}`;
-
-      setTxHash(hash);
-      toast.loading('Confirming transaction...', { id: 'donate' });
-
-      // Wait for confirmation
-      const publicClient = createPublicClient({
-        chain: base,
-        transport: http(),
+      // Send token transfer transaction
+      const hash = await sendTransactionAsync({
+        to: token.address,
+        data: transferData as `0x${string}`,
       });
 
-      await publicClient.waitForTransactionReceipt({ hash });
-
+      setTxHash(hash);
       setIsSuccess(true);
       toast.success(`Contribution successful! 🎉 OG NFT eligibility recorded`, { id: 'donate' });
 

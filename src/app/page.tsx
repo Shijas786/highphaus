@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { usePrivy, useWallets } from '@privy-io/react-auth';
+import { useAccount } from 'wagmi';
 import { FaucetCard } from '@/components/FaucetCard';
 import { useStats } from '@/hooks/use-stats';
 import { useEthPrice } from '@/hooks/use-eth-price';
@@ -10,14 +10,11 @@ import { BASE_TOKENS } from '@/config/tokens';
 import { CLAIM_AMOUNT_USD } from '@/config/constants';
 
 export default function Home() {
-  const { authenticated } = usePrivy();
-  const { wallets } = useWallets();
+  const { isConnected } = useAccount();
   const { data: stats } = useStats();
   const { data: ethPrice } = useEthPrice();
   const { donate, isLoading: isDonating } = useDonate();
   const [depositAmount, setDepositAmount] = useState('');
-
-  const isConnected = authenticated && wallets.length > 0;
 
   // Calculate ETH amount from USD
   const claimAmountEth =

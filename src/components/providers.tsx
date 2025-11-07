@@ -3,7 +3,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactNode, useState } from 'react';
 import { Toaster } from 'sonner';
-import PrivyProviderWrapper from './PrivyProviderWrapper';
+import { WagmiProviderWrapper } from './WagmiProviderWrapper';
 import { FarcasterProvider } from './FarcasterProvider';
 import { ErrorBoundary } from './ErrorBoundary';
 
@@ -23,9 +23,9 @@ export function Providers({ children }: { children: ReactNode }) {
 
   return (
     <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <FarcasterProvider>
-          <PrivyProviderWrapper>
+      <WagmiProviderWrapper>
+        <QueryClientProvider client={queryClient}>
+          <FarcasterProvider>
             {children}
             <Toaster
               position="top-right"
@@ -38,9 +38,9 @@ export function Providers({ children }: { children: ReactNode }) {
                 },
               }}
             />
-          </PrivyProviderWrapper>
-        </FarcasterProvider>
-      </QueryClientProvider>
+          </FarcasterProvider>
+        </QueryClientProvider>
+      </WagmiProviderWrapper>
     </ErrorBoundary>
   );
 }
