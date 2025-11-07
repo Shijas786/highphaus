@@ -31,6 +31,7 @@ export function FaucetCard() {
   const [showConfetti, setShowConfetti] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [fillPercent] = useState(50); // Static fill animation
+  const [hasAttemptedAutoLogin, setHasAttemptedAutoLogin] = useState(false);
 
   useEffect(() => {
     if (txHash) {
@@ -41,15 +42,38 @@ export function FaucetCard() {
     }
   }, [txHash, checkEligibility]);
 
-  // Log Farcaster context when detected (but don't auto-login)
+  // Smart auto-login with Farcaster in Mini-App
   useEffect(() => {
-    if (isMiniapp && farcasterUser && !farcasterLoading) {
-      console.log('🟣 Farcaster Mini-App detected', {
+    if (
+      isMiniapp &&
+      farcasterUser &&
+      !farcasterLoading &&
+      !authenticated &&
+      ready &&
+      !hasAttemptedAutoLogin
+    ) {
+      console.log('🟣 Farcaster Mini-App detected - Auto-connecting', {
         fid: farcasterUser.fid,
         username: farcasterUser.username,
       });
+
+      // Set flag to prevent multiple attempts
+      setHasAttemptedAutoLogin(true);
+
+      // Add small delay to ensure DOM is ready
+      setTimeout(() => {
+        login();
+      }, 500);
     }
-  }, [isMiniapp, farcasterUser, farcasterLoading]);
+  }, [
+    isMiniapp,
+    farcasterUser,
+    farcasterLoading,
+    authenticated,
+    ready,
+    hasAttemptedAutoLogin,
+    login,
+  ]);
 
   const handleClaim = async () => {
     if (!authenticated) {
