@@ -16,10 +16,10 @@ export function useMintNFT() {
   const [isLoading, setIsLoading] = useState(false);
   const [txHash, setTxHash] = useState<string | null>(null);
 
-  const mintOGNFT = async () => {
+  const mintOGNFT = async (): Promise<string | undefined> => {
     if (!address) {
       toast.error('Please connect your wallet');
-      return;
+      return undefined;
     }
 
     setIsLoading(true);
@@ -39,7 +39,7 @@ export function useMintNFT() {
 
       if (!result.success) {
         toast.error(result.error || 'NFT minting failed');
-        return;
+        return undefined;
       }
 
       setTxHash(result.txHash || null);
@@ -48,20 +48,21 @@ export function useMintNFT() {
     } catch (error) {
       console.error('OG NFT minting error:', error);
       toast.error('NFT minting failed. Please try again.');
+      return undefined;
     } finally {
       setIsLoading(false);
     }
   };
 
-  const mintClaimerNFT = async () => {
+  const mintClaimerNFT = async (): Promise<string | undefined> => {
     if (!address) {
       toast.error('Please connect your wallet');
-      return;
+      return undefined;
     }
 
     if (!user?.fid) {
       toast.error('Farcaster account required');
-      return;
+      return undefined;
     }
 
     setIsLoading(true);
@@ -82,7 +83,7 @@ export function useMintNFT() {
 
       if (!result.success) {
         toast.error(result.error || 'NFT minting failed');
-        return;
+        return undefined;
       }
 
       setTxHash(result.txHash || null);
@@ -91,6 +92,7 @@ export function useMintNFT() {
     } catch (error) {
       console.error('Claimer NFT minting error:', error);
       toast.error('NFT minting failed. Please try again.');
+      return undefined;
     } finally {
       setIsLoading(false);
     }

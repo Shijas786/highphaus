@@ -11,27 +11,21 @@ const USDC_ABI = parseAbi([
   'function allowance(address owner, address spender) view returns (uint256)',
 ]);
 
-interface ContributeResponse {
-  success: boolean;
-  txHash?: string;
-  error?: string;
-}
-
 export function useContribute() {
   const { address } = useAccount();
   const [isLoading, setIsLoading] = useState(false);
   const [txHash, setTxHash] = useState<string | null>(null);
 
-  const contribute = async (amount: string) => {
+  const contribute = async (amount: string): Promise<string | undefined> => {
     if (!address) {
       toast.error('Please connect your wallet');
-      return;
+      return undefined;
     }
 
     const amountNum = parseFloat(amount);
     if (isNaN(amountNum) || amountNum < 1) {
       toast.error('Minimum contribution is 1 USDC');
-      return;
+      return undefined;
     }
 
     setIsLoading(true);
@@ -41,7 +35,7 @@ export function useContribute() {
       const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`;
       if (!contractAddress) {
         toast.error('Contract address not configured');
-        return;
+        return undefined;
       }
 
       // Get wallet and public clients
@@ -50,7 +44,7 @@ export function useContribute() {
 
       if (!walletClient || !publicClient) {
         toast.error('Failed to get wallet client');
-        return;
+        return undefined;
       }
 
       // Parse USDC amount (6 decimals)
@@ -110,6 +104,7 @@ export function useContribute() {
     } catch (error) {
       console.error('Contribution error:', error);
       toast.error('Contribution failed. Please try again.');
+      return undefined;
     } finally {
       setIsLoading(false);
     }

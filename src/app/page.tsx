@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useAccount } from 'wagmi';
 import { FaucetCard } from '@/components/FaucetCard';
 import { ContributionCard } from '@/components/ContributionCard';
 import { NFTSection } from '@/components/NFTSection';
@@ -12,7 +11,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Droplet, Heart, Award } from 'lucide-react';
 
 export default function Home() {
-  const { isConnected } = useAccount();
   const { data: stats } = useStats();
   const { data: ethPrice } = useEthPrice();
   const [activeTab, setActiveTab] = useState('claim');
