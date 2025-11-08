@@ -4,6 +4,9 @@ import { NextRequest, NextResponse } from 'next/server';
 // Tracks wallets that have EVER claimed (one-time only)
 const claimedWallets = new Set<string>();
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
