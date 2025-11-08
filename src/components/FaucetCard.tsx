@@ -2,39 +2,57 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { useEligibility } from '@/hooks/use-eligibility';
 import { formatAddress } from '@/lib/utils';
-import { Droplet, Loader2, CheckCircle2 } from 'lucide-react';
+import { Droplet, Loader2, CheckCircle2, Clock } from 'lucide-react';
 import { useEthPrice } from '@/hooks/use-eth-price';
 import Confetti from 'react-confetti';
 import { useEffect, useState } from 'react';
 import { CLAIM_AMOUNT_USD } from '@/config/constants';
 import { useFarcaster } from './FarcasterProvider';
-import { useFarcasterClaim } from '@/hooks/use-farcaster-claim';
+import { useGaslessClaim } from '@/hooks/use-gasless-claim';
+import { useClaimStatus } from '@/hooks/use-claim-status';
 import { useConnect, useAccount } from 'wagmi';
 import { injected } from 'wagmi/connectors';
 
 export function FaucetCard() {
   const { data: ethPrice } = useEthPrice();
-  const { data: eligibility, refetch: checkEligibility } = useEligibility();
   const { user: farcasterUser, isMiniapp } = useFarcaster();
+  const { data: claimStatus, refetch: refetchStatus } = useClaimStatus();
 
   // Wagmi hooks
   const { address, isConnected } = useAccount();
   const { connect } = useConnect();
 
-  // Farcaster claim hook
-  const { claim, isLoading, txHash, isConfirmed } = useFarcasterClaim();
+  // Gasless claim hook
+  const { claim, isLoading, txHash, isConfirmed } = useGaslessClaim();
 
   const [showConfetti, setShowConfetti] = useState(false);
+  const [countdown, setCountdown] = useState({ hours: 0, minutes: 0, seconds: 0 });
+
+  // Update countdown timer
+  useEffect(() => {
+    if (!claimStatus?.secondsUntilClaim) return;
+
+    const updateCountdown = () => {
+      const seconds = claimStatus.secondsUntilClaim;
+      const hours = Math.floor(seconds / 3600);
+      const minutes = Math.floor((seconds % 3600) / 60);
+      const secs = seconds % 60;
+      setCountdown({ hours, minutes, seconds: secs });
+    };
+
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+    return () => clearInterval(interval);
+  }, [claimStatus?.secondsUntilClaim]);
 
   useEffect(() => {
     if (isConfirmed) {
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 5000);
-      checkEligibility();
+      refetchStatus();
     }
-  }, [isConfirmed, checkEligibility]);
+  }, [isConfirmed, refetchStatus]);
 
   const handleConnect = () => {
     connect({ connector: injected() });
@@ -59,6 +77,7 @@ export function FaucetCard() {
         return {
           message: `Connect wallet to claim (Farcaster #${farcasterUser.fid})`,
           canClaim: false,
+          showCountdown: false,
         };
       }
     }
@@ -67,6 +86,7 @@ export function FaucetCard() {
       return {
         message: 'Connect wallet to claim',
         canClaim: false,
+        showCountdown: false,
       };
     }
 
@@ -74,6 +94,7 @@ export function FaucetCard() {
       return {
         message: 'Processing claim...',
         canClaim: false,
+        showCountdown: false,
       };
     }
 
@@ -81,19 +102,22 @@ export function FaucetCard() {
       return {
         message: 'Claim successful! 🎉',
         canClaim: false,
+        showCountdown: false,
       };
     }
 
-    if (eligibility && !eligibility.eligible) {
+    if (claimStatus && !claimStatus.canClaim) {
       return {
-        message: eligibility.reason || 'Not eligible',
+        message: 'Cooldown Period',
         canClaim: false,
+        showCountdown: true,
       };
     }
 
     return {
-      message: `Claim $${CLAIM_AMOUNT_USD.toFixed(2)} worth of ETH`,
+      message: 'Ready to Claim!',
       canClaim: true,
+      showCountdown: false,
     };
   };
 
@@ -195,11 +219,54 @@ export function FaucetCard() {
               >
                 {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
                 {isConfirmed && <CheckCircle2 className="w-4 h-4 text-green-500" />}
-                <span className={isConfirmed ? 'text-green-400' : 'text-gray-300'}>
+                {status.showCountdown && <Clock className="w-4 h-4 text-orange-500" />}
+                <span className={isConfirmed ? 'text-green-400' : status.canClaim ? 'text-green-400' : 'text-orange-400'}>
                   {status.message}
                 </span>
               </motion.div>
             </AnimatePresence>
+
+            {/* Countdown Timer */}
+            {status.showCountdown && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="p-4 rounded-lg"
+                style={{ background: '#FF660020', border: '2px solid #FF6600' }}
+              >
+                <div className="flex items-center justify-center gap-6">
+                  <div className="text-center">
+                    <div className="text-3xl font-black" style={{ color: '#FF6600' }}>
+                      {String(countdown.hours).padStart(2, '0')}
+                    </div>
+                    <div className="text-xs font-bold uppercase opacity-60" style={{ color: '#FFFFFF' }}>
+                      Hours
+                    </div>
+                  </div>
+                  <div className="text-3xl font-black" style={{ color: '#FF6600' }}>:</div>
+                  <div className="text-center">
+                    <div className="text-3xl font-black" style={{ color: '#FF6600' }}>
+                      {String(countdown.minutes).padStart(2, '0')}
+                    </div>
+                    <div className="text-xs font-bold uppercase opacity-60" style={{ color: '#FFFFFF' }}>
+                      Minutes
+                    </div>
+                  </div>
+                  <div className="text-3xl font-black" style={{ color: '#FF6600' }}>:</div>
+                  <div className="text-center">
+                    <div className="text-3xl font-black" style={{ color: '#FF6600' }}>
+                      {String(countdown.seconds).padStart(2, '0')}
+                    </div>
+                    <div className="text-xs font-bold uppercase opacity-60" style={{ color: '#FFFFFF' }}>
+                      Seconds
+                    </div>
+                  </div>
+                </div>
+                <p className="text-xs text-center mt-3 font-bold uppercase" style={{ color: '#FFFFFF', opacity: 0.7 }}>
+                  Next claim available in
+                </p>
+              </motion.div>
+            )}
           </div>
 
           {/* Claim Amount Display */}

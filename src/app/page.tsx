@@ -3,18 +3,19 @@
 import { useState } from 'react';
 import { useAccount } from 'wagmi';
 import { FaucetCard } from '@/components/FaucetCard';
+import { ContributionCard } from '@/components/ContributionCard';
+import { NFTSection } from '@/components/NFTSection';
 import { useStats } from '@/hooks/use-stats';
 import { useEthPrice } from '@/hooks/use-eth-price';
-import { useDonate } from '@/hooks/use-donate';
-import { BASE_TOKENS } from '@/config/tokens';
 import { CLAIM_AMOUNT_USD } from '@/config/constants';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Droplet, Heart, Award } from 'lucide-react';
 
 export default function Home() {
   const { isConnected } = useAccount();
   const { data: stats } = useStats();
   const { data: ethPrice } = useEthPrice();
-  const { donate, isLoading: isDonating } = useDonate();
-  const [depositAmount, setDepositAmount] = useState('');
+  const [activeTab, setActiveTab] = useState('claim');
 
   // Calculate ETH amount from USD
   const claimAmountEth =
@@ -68,8 +69,6 @@ export default function Home() {
                 </div>
               </div>
             </div>
-
-            {/* Wallet section removed - login handled in FaucetCard */}
           </div>
         </div>
 
@@ -102,7 +101,7 @@ export default function Home() {
                 clipPath: 'polygon(5% 0%, 100% 0%, 95% 100%, 0% 100%)',
               }}
             >
-              FREE FOR ALL BUILDERS
+              FREE GAS FOR BUILDERS
             </div>
           </div>
 
@@ -115,7 +114,7 @@ export default function Home() {
           >
             GET
             <br />
-            <span style={{ color: '#0052FF' }}>$0.10</span>
+            <span style={{ color: '#0052FF' }}>$0.03</span>
             <br />
             <span className="text-5xl md:text-6xl">IN ETH</span>
           </h1>
@@ -125,7 +124,7 @@ export default function Home() {
           </p>
 
           <p className="text-lg mb-12" style={{ color: '#666666' }}>
-            One-time claim per wallet • No strings attached • Instant delivery
+            48-hour recurring claims • Farcaster verified • Gasless ⚡
           </p>
 
           {/* ETH Price Display */}
@@ -210,13 +209,13 @@ export default function Home() {
               className="text-xs uppercase font-black tracking-widest mb-4"
               style={{ color: '#888888' }}
             >
-              OG NFTs
+              NFTs MINTED
             </div>
             <div className="text-5xl lg:text-7xl font-black mb-2" style={{ color: '#FFFFFF' }}>
-              {stats ? Math.max(0, 1000 - stats.totalClaimants) : '1000'}
+              {stats ? stats.totalClaimants : '0'}
             </div>
             <div className="text-sm font-black uppercase" style={{ color: '#0052FF' }}>
-              / 1000
+              TOTAL
             </div>
           </div>
 
@@ -263,238 +262,124 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Main Action Section - CLAIM */}
+      {/* Tabbed Interface Section */}
       <section className="py-20" style={{ background: '#F5F5F5' }}>
-        <div className="max-w-4xl mx-auto px-6">
-          <div className="mb-12 text-center">
-            <h2 className="text-5xl font-black uppercase mb-4" style={{ color: '#000000' }}>
-              FREE <span style={{ color: '#0052FF' }}>CLAIM</span>
-            </h2>
-            <p className="text-xl font-bold" style={{ color: '#666666' }}>
-              Everyone gets $0.10 worth of ETH • One-time only • Gasless ⚡
-            </p>
-          </div>
-
-          {/* Farcaster Gasless Claim Card */}
-          <FaucetCard />
-        </div>
-      </section>
-
-      {/* Support Builders Section with NFT */}
-      <section className="relative py-20 overflow-hidden" style={{ background: '#000000' }}>
-        <div
-          className="absolute inset-0 opacity-10"
-          style={{
-            background:
-              'repeating-linear-gradient(-45deg, transparent, transparent 20px, #0052FF 20px, #0052FF 40px)',
-          }}
-        />
-
-        <div className="relative max-w-4xl mx-auto px-6">
-          {/* NFT Preview */}
-          <div className="mb-12 text-center">
-            <div className="inline-block mb-6">
-              <div
-                className="px-6 py-2 font-black text-xs uppercase tracking-widest"
-                style={{
-                  background: '#0052FF',
-                  color: '#FFFFFF',
-                }}
-              >
-                FUEL THE COMMUNITY
-              </div>
-            </div>
-
-            <h2 className="text-5xl font-black uppercase mb-6" style={{ color: '#FFFFFF' }}>
-              HIGHPHAUS
-              <br />
-              <span style={{ color: '#0052FF' }}>OG NFT</span>
-            </h2>
-
-            {/* NFT Image */}
-            <div
-              className="max-w-md mx-auto mb-8 relative overflow-hidden"
-              style={{
-                border: '4px solid #0052FF',
-                boxShadow: '0 0 40px rgba(0, 82, 255, 0.5)',
-              }}
+        <div className="max-w-6xl mx-auto px-6">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            {/* Custom Athletic Tabs */}
+            <TabsList
+              className="grid w-full grid-cols-3 mb-12 p-0 h-auto gap-2"
+              style={{ background: 'transparent' }}
             >
-              <img
-                src="/nft-preview.png"
-                alt="HAUS OF 1000 - Limited Edition NFT"
-                className="w-full h-full object-cover"
-                style={{ display: 'block' }}
-              />
-            </div>
-
-            <p className="text-xl font-bold mb-4" style={{ color: '#FFFFFF' }}>
-              First 1000 builders receive this exclusive NFT
-            </p>
-            <p className="text-lg" style={{ color: '#CCCCCC' }}>
-              Minimum $1 contribution to help fund fellow builders
-            </p>
-          </div>
-
-          {isConnected && (
-            <div>
-              {/* Support Amount Selection - USDC ONLY */}
-              <div className="mb-8">
-                <h3
-                  className="text-2xl font-black uppercase mb-6 text-center"
-                  style={{ color: '#FFFFFF' }}
-                >
-                  SUPPORT BUILDERS IN USDC
-                </h3>
-
-                <div className="grid grid-cols-3 gap-4 mb-6">
-                  {['10', '50', '100'].map((amount, idx) => (
-                    <button
-                      key={amount}
-                      onClick={() => setDepositAmount(amount)}
-                      className="relative py-12 font-black text-3xl transition-all overflow-hidden"
-                      style={{
-                        background: depositAmount === amount ? '#0052FF' : '#1a1a1a',
-                        color: '#FFFFFF',
-                        border: '3px solid #0052FF',
-                        clipPath:
-                          idx === 1
-                            ? 'polygon(0 0, 100% 0, 100% 100%, 0 100%)'
-                            : 'polygon(3% 0%, 100% 0%, 97% 100%, 0% 100%)',
-                      }}
-                    >
-                      {depositAmount === amount && (
-                        <div
-                          className="absolute bottom-0 left-0 w-full h-2"
-                          style={{ background: '#00D4FF' }}
-                        />
-                      )}
-                      <div>${amount}</div>
-                      <div className="text-xs font-bold uppercase opacity-60 mt-2">
-                        = {amount} USDC
-                      </div>
-                    </button>
-                  ))}
-                </div>
-
-                <input
-                  type="number"
-                  value={depositAmount}
-                  onChange={(e) => setDepositAmount(e.target.value)}
-                  min="1"
-                  step="1"
-                  className="w-full px-6 py-4 font-black text-2xl text-center uppercase"
-                  placeholder="CUSTOM AMOUNT (MIN $1 USDC)"
-                  style={{
-                    background: '#1a1a1a',
-                    color: '#FFFFFF',
-                    border: '3px solid #0052FF',
-                    outline: 'none',
-                  }}
-                  onFocus={(e) => (e.target.style.borderColor = '#00D4FF')}
-                  onBlur={(e) => (e.target.style.borderColor = '#0052FF')}
-                />
-
-                {depositAmount && (
-                  <div className="mt-4 text-center">
-                    <div className="text-lg font-bold" style={{ color: '#FFFFFF' }}>
-                      💰 You will fund: {depositAmount} USDC
-                    </div>
-                    <div className="text-sm opacity-60" style={{ color: '#FFFFFF' }}>
-                      (Helps {Math.floor(parseFloat(depositAmount) / 0.1)} builders claim)
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Benefits List */}
-              <div
-                className="mb-8 p-8 relative overflow-hidden"
+              <TabsTrigger
+                value="claim"
+                className="relative py-8 font-black text-lg uppercase tracking-wide transition-all data-[state=active]:scale-105"
                 style={{
-                  background: '#1a1a1a',
-                  border: '2px solid #0052FF',
-                }}
-              >
-                <div
-                  className="absolute top-0 right-0 w-2 h-full"
-                  style={{ background: '#0052FF' }}
-                />
-                <div className="text-lg font-black uppercase mb-6" style={{ color: '#FFFFFF' }}>
-                  BUILDER BENEFITS
-                </div>
-                <div className="space-y-4">
-                  <div className="flex items-center gap-4">
-                    <span className="text-2xl" style={{ color: '#0052FF' }}>
-                      ✓
-                    </span>
-                    <span className="font-bold uppercase text-sm" style={{ color: '#FFFFFF' }}>
-                      RECEIVE LIMITED EDITION HIGHPHAUS OG NFT
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <span className="text-2xl" style={{ color: '#0052FF' }}>
-                      ✓
-                    </span>
-                    <span className="font-bold uppercase text-sm" style={{ color: '#FFFFFF' }}>
-                      SUPPORT FELLOW BUILDERS & DEVELOPERS
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <span className="text-2xl" style={{ color: '#0052FF' }}>
-                      ✓
-                    </span>
-                    <span className="font-bold uppercase text-sm" style={{ color: '#FFFFFF' }}>
-                      HELP GROW THE BASE ECOSYSTEM
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <span className="text-2xl" style={{ color: '#0052FF' }}>
-                      ✓
-                    </span>
-                    <span className="font-bold uppercase text-sm" style={{ color: '#FFFFFF' }}>
-                      JOIN EXCLUSIVE OG COMMUNITY (1 OF 1000)
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Support Button */}
-              <button
-                onClick={async () => {
-                  if (!depositAmount) return;
-
-                  const usdcAmount = parseFloat(depositAmount).toFixed(2);
-                  await donate(BASE_TOKENS.USDC, usdcAmount);
-                }}
-                disabled={!depositAmount || parseFloat(depositAmount) < 1 || isDonating}
-                className="w-full py-10 font-black text-3xl uppercase tracking-wide transition-all disabled:opacity-50 relative overflow-hidden"
-                style={{
-                  background: 'linear-gradient(135deg, #0052FF 0%, #00D4FF 100%)',
+                  background: activeTab === 'claim' ? '#0052FF' : '#000000',
                   color: '#FFFFFF',
-                  clipPath: 'polygon(1% 0%, 100% 0%, 99% 100%, 0% 100%)',
-                }}
-                onMouseEnter={(e) => {
-                  if (!e.currentTarget.disabled) {
-                    e.currentTarget.style.background = '#000000';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background =
-                    'linear-gradient(135deg, #0052FF 0%, #00D4FF 100%)';
+                  border: '3px solid #0052FF',
+                  clipPath: 'polygon(3% 0%, 100% 0%, 97% 100%, 0% 100%)',
                 }}
               >
-                <span className="relative z-10">
-                  {isDonating ? 'PROCESSING...' : `FUND ${depositAmount || '0'} USDC → GET OG NFT`}
-                </span>
-              </button>
+                {activeTab === 'claim' && (
+                  <div
+                    className="absolute bottom-0 left-0 w-full h-2"
+                    style={{ background: '#00D4FF' }}
+                  />
+                )}
+                <div className="flex items-center justify-center gap-3">
+                  <Droplet className="w-6 h-6" />
+                  <span>CLAIM GAS</span>
+                </div>
+              </TabsTrigger>
 
-              <p
-                className="text-center text-xs font-bold uppercase mt-4"
-                style={{ color: '#888888' }}
+              <TabsTrigger
+                value="support"
+                className="relative py-8 font-black text-lg uppercase tracking-wide transition-all data-[state=active]:scale-105"
+                style={{
+                  background: activeTab === 'support' ? '#0052FF' : '#000000',
+                  color: '#FFFFFF',
+                  border: '3px solid #0052FF',
+                }}
               >
-                Claiming is always free • Support builders in USDC • Receive exclusive OG NFT
-              </p>
-            </div>
-          )}
+                {activeTab === 'support' && (
+                  <div
+                    className="absolute bottom-0 left-0 w-full h-2"
+                    style={{ background: '#00D4FF' }}
+                  />
+                )}
+                <div className="flex items-center justify-center gap-3">
+                  <Heart className="w-6 h-6" />
+                  <span>SUPPORT</span>
+                </div>
+              </TabsTrigger>
+
+              <TabsTrigger
+                value="nfts"
+                className="relative py-8 font-black text-lg uppercase tracking-wide transition-all data-[state=active]:scale-105"
+                style={{
+                  background: activeTab === 'nfts' ? '#0052FF' : '#000000',
+                  color: '#FFFFFF',
+                  border: '3px solid #0052FF',
+                  clipPath: 'polygon(0% 0%, 97% 0%, 100% 100%, 3% 100%)',
+                }}
+              >
+                {activeTab === 'nfts' && (
+                  <div
+                    className="absolute bottom-0 left-0 w-full h-2"
+                    style={{ background: '#00D4FF' }}
+                  />
+                )}
+                <div className="flex items-center justify-center gap-3">
+                  <Award className="w-6 h-6" />
+                  <span>NFTs</span>
+                </div>
+              </TabsTrigger>
+            </TabsList>
+
+            {/* Tab Content */}
+            <TabsContent value="claim" className="mt-0">
+              <div className="text-center mb-8">
+                <h2 className="text-5xl font-black uppercase mb-4" style={{ color: '#000000' }}>
+                  FREE <span style={{ color: '#0052FF' }}>CLAIM</span>
+                </h2>
+                <p className="text-xl font-bold" style={{ color: '#666666' }}>
+                  Everyone gets $0.03 worth of ETH • 48hr cooldown • Gasless ⚡
+                </p>
+              </div>
+              <div className="max-w-4xl mx-auto">
+                <FaucetCard />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="support" className="mt-0">
+              <div className="text-center mb-8">
+                <h2 className="text-5xl font-black uppercase mb-4" style={{ color: '#000000' }}>
+                  SUPPORT <span style={{ color: '#0052FF' }}>BUILDERS</span>
+                </h2>
+                <p className="text-xl font-bold" style={{ color: '#666666' }}>
+                  Contribute USDC to help fund fellow builders • Get OG NFT
+                </p>
+              </div>
+              <div className="max-w-4xl mx-auto">
+                <ContributionCard />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="nfts" className="mt-0">
+              <div className="text-center mb-8">
+                <h2 className="text-5xl font-black uppercase mb-4" style={{ color: '#000000' }}>
+                  EXCLUSIVE <span style={{ color: '#0052FF' }}>NFTs</span>
+                </h2>
+                <p className="text-xl font-bold" style={{ color: '#666666' }}>
+                  Mint commemorative NFTs • Gasless minting • Limited supply
+                </p>
+              </div>
+              <div className="max-w-6xl mx-auto">
+                <NFTSection />
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
       </section>
 
@@ -516,7 +401,7 @@ export default function Home() {
             className="text-sm font-bold uppercase tracking-widest mb-8"
             style={{ color: '#0052FF' }}
           >
-            FREE ETH FOR BUILDERS • ONE CLAIM PER WALLET • BASE NETWORK
+            FREE ETH FOR BUILDERS • 48-HOUR COOLDOWN • BASE NETWORK
           </div>
 
           <div className="flex justify-center gap-2 mb-6">

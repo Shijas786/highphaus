@@ -30,6 +30,9 @@ export const config = createConfig({
   ssr: true,
 });
 
+// Export as wagmiConfig for compatibility
+export const wagmiConfig = config;
+
 declare module 'wagmi' {
   interface Register {
     config: typeof config;
