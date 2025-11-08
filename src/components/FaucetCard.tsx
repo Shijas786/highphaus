@@ -14,7 +14,11 @@ import { useClaimStatus } from '@/hooks/use-claim-status';
 import { useConnect, useAccount } from 'wagmi';
 import { injected } from 'wagmi/connectors';
 
-export function FaucetCard() {
+interface FaucetCardProps {
+  onClaimSuccess?: () => void;
+}
+
+export function FaucetCard({ onClaimSuccess }: FaucetCardProps = {}) {
   const { data: ethPrice } = useEthPrice();
   const { user: farcasterUser, isMiniapp } = useFarcaster();
   const { data: claimStatus, refetch: refetchStatus } = useClaimStatus();
@@ -51,8 +55,12 @@ export function FaucetCard() {
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 5000);
       refetchStatus();
+      // Notify parent about successful claim
+      if (onClaimSuccess) {
+        setTimeout(() => onClaimSuccess(), 3000); // Show notification after 3 seconds
+      }
     }
-  }, [isConfirmed, refetchStatus]);
+  }, [isConfirmed, refetchStatus, onClaimSuccess]);
 
   const handleConnect = () => {
     connect({ connector: injected() });
@@ -323,6 +331,28 @@ export function FaucetCard() {
             >
               View transaction →
             </motion.a>
+          )}
+
+          {/* NFT Claim Prompt after successful claim */}
+          {isConfirmed && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 2 }}
+              className="mt-6 p-6 text-center"
+              style={{
+                background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
+                border: '3px solid #FFD700',
+                borderRadius: '12px',
+              }}
+            >
+              <p className="text-lg font-black uppercase mb-2" style={{ color: '#000000' }}>
+                🎁 FREE NFT UNLOCKED!
+              </p>
+              <p className="text-sm font-bold" style={{ color: '#000000', opacity: 0.8 }}>
+                Go to the NFTs tab to claim your exclusive reward
+              </p>
+            </motion.div>
           )}
         </div>
       </motion.div>

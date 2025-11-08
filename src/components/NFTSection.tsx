@@ -6,10 +6,14 @@ import { Card } from '@/components/ui/card';
 import { useNFTStatus } from '@/hooks/use-nft-status';
 import { useMintNFT } from '@/hooks/use-mint-nft';
 import { useAccount } from 'wagmi';
-import { Loader2, Award, Trophy, CheckCircle2, Lock } from 'lucide-react';
+import { Loader2, Award, Trophy, CheckCircle2, Lock, Sparkles, Gift } from 'lucide-react';
 import { formatUSDC } from '@/lib/faucet-contract';
 
-export function NFTSection() {
+interface NFTSectionProps {
+  onTabChange?: (tab: string) => void;
+}
+
+export function NFTSection({ onTabChange }: NFTSectionProps) {
   const { isConnected } = useAccount();
   const { data: nftStatus, isLoading: statusLoading, refetch } = useNFTStatus();
   const { mintOGNFT, mintClaimerNFT, isLoading: mintLoading, txHash } = useMintNFT();
@@ -28,23 +32,136 @@ export function NFTSection() {
 
   if (!isConnected) {
     return (
-      <Card className="p-8 text-center">
-        <p className="text-gray-400">Connect your wallet to view NFT eligibility</p>
-      </Card>
+      <div className="max-w-4xl mx-auto">
+        <Card className="p-12 text-center" style={{ background: '#1a1a1a', border: '3px solid #0052FF' }}>
+          <Lock className="w-16 h-16 mx-auto mb-6" style={{ color: '#0052FF' }} />
+          <h3 className="text-3xl font-black uppercase mb-4" style={{ color: '#FFFFFF' }}>
+            Connect Wallet
+          </h3>
+          <p className="text-lg" style={{ color: '#CCCCCC' }}>
+            Connect your wallet to view exclusive NFT rewards
+          </p>
+        </Card>
+      </div>
     );
   }
 
   if (statusLoading) {
     return (
-      <Card className="p-8 text-center">
-        <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-baseBlue" />
-        <p className="text-gray-400">Loading NFT status...</p>
-      </Card>
+      <div className="max-w-4xl mx-auto">
+        <Card className="p-12 text-center" style={{ background: '#1a1a1a', border: '3px solid #0052FF' }}>
+          <Loader2 className="w-12 h-12 animate-spin mx-auto mb-6" style={{ color: '#0052FF' }} />
+          <p className="text-lg" style={{ color: '#CCCCCC' }}>
+            Loading your rewards...
+          </p>
+        </Card>
+      </div>
     );
   }
 
+  // Check if user hasn't claimed yet
+  const hasNotClaimed = !nftStatus?.claimerNFT.hasClaimed;
+
+  if (hasNotClaimed) {
+    return (
+      <div className="max-w-4xl mx-auto">
+        <Card className="p-12 text-center relative overflow-hidden" style={{ background: '#1a1a1a', border: '3px solid #FF6600' }}>
+          {/* Animated background */}
+          <div
+            className="absolute inset-0 opacity-10"
+            style={{
+              background:
+                'repeating-linear-gradient(-45deg, transparent, transparent 20px, #FF6600 20px, #FF6600 40px)',
+            }}
+          />
+          
+          <div className="relative z-10">
+            <Gift className="w-20 h-20 mx-auto mb-6" style={{ color: '#FF6600' }} />
+            <h3 className="text-4xl font-black uppercase mb-4" style={{ color: '#FFFFFF' }}>
+              Claim Gas First!
+            </h3>
+            <p className="text-xl font-bold mb-6" style={{ color: '#CCCCCC' }}>
+              Get your free ETH to unlock exclusive NFT rewards
+            </p>
+            <div className="space-y-3 mb-8 max-w-md mx-auto">
+              <div className="flex items-center gap-3 justify-center">
+                <span className="text-2xl">🎁</span>
+                <span className="text-sm font-bold uppercase" style={{ color: '#FFFFFF' }}>
+                  Claim $0.03 ETH (Gasless)
+                </span>
+              </div>
+              <div className="flex items-center gap-3 justify-center">
+                <span className="text-2xl">🏆</span>
+                <span className="text-sm font-bold uppercase" style={{ color: '#FFFFFF' }}>
+                  Unlock Free Claimer NFT
+                </span>
+              </div>
+              <div className="flex items-center gap-3 justify-center">
+                <span className="text-2xl">💎</span>
+                <span className="text-sm font-bold uppercase" style={{ color: '#FFFFFF' }}>
+                  Contribute USDC for OG NFT
+                </span>
+              </div>
+            </div>
+            
+            <Button
+              onClick={() => onTabChange?.('claim')}
+              className="px-12 py-8 font-black text-2xl uppercase"
+              style={{
+                background: 'linear-gradient(135deg, #FF6600 0%, #FF9900 100%)',
+                color: '#FFFFFF',
+                clipPath: 'polygon(2% 0%, 100% 0%, 98% 100%, 0% 100%)',
+              }}
+            >
+              <Sparkles className="w-6 h-6 mr-2" />
+              GO TO CLAIM GAS
+            </Button>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  // User has claimed! Show success message and NFT cards
   return (
-    <div className="grid md:grid-cols-2 gap-6">
+    <div className="max-w-6xl mx-auto space-y-8">
+      {/* Success Banner */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="relative overflow-hidden p-8 text-center"
+        style={{
+          background: 'linear-gradient(135deg, #00FF00 0%, #00CC00 100%)',
+          border: '3px solid #00FF00',
+          clipPath: 'polygon(1% 0%, 100% 0%, 99% 100%, 0% 100%)',
+        }}
+      >
+        <div className="flex items-center justify-center gap-4 mb-4">
+          <CheckCircle2 className="w-12 h-12" style={{ color: '#000000' }} />
+          <h2 className="text-4xl font-black uppercase" style={{ color: '#000000' }}>
+            Successfully Claimed!
+          </h2>
+        </div>
+        <p className="text-xl font-bold mb-2" style={{ color: '#000000' }}>
+          🎉 Congratulations! Now claim your FREE exclusive NFT below 🎉
+        </p>
+        <p className="text-sm font-bold uppercase" style={{ color: '#000000', opacity: 0.8 }}>
+          Gasless minting • Limited supply • No fees
+        </p>
+      </motion.div>
+
+      {/* Header */}
+      <div className="text-center">
+        <h3 className="text-5xl font-black uppercase mb-4" style={{ color: '#000000' }}>
+          EXCLUSIVE <span style={{ color: '#0052FF' }}>NFT REWARDS</span>
+        </h3>
+        <p className="text-xl font-bold" style={{ color: '#666666' }}>
+          Choose your NFT • Gasless minting • Claim yours now
+        </p>
+      </div>
+
+      {/* NFT Cards */}
+      <div className="grid md:grid-cols-2 gap-6">
       {/* OG Contributor NFT Card */}
       <motion.div
         initial={{ opacity: 0, x: -20 }}
@@ -300,6 +417,7 @@ export function NFTSection() {
           </div>
         </Card>
       </motion.div>
+      </div>
     </div>
   );
 }

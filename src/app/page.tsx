@@ -6,14 +6,20 @@ import { ContributionCard } from '@/components/ContributionCard';
 import { NFTSection } from '@/components/NFTSection';
 import { useStats } from '@/hooks/use-stats';
 import { useEthPrice } from '@/hooks/use-eth-price';
+import { useNFTStatus } from '@/hooks/use-nft-status';
 import { CLAIM_AMOUNT_USD } from '@/config/constants';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Droplet, Heart, Award } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export default function Home() {
   const { data: stats } = useStats();
   const { data: ethPrice } = useEthPrice();
+  const { data: nftStatus } = useNFTStatus();
   const [activeTab, setActiveTab] = useState('claim');
+
+  // Check if user has claimed and can mint NFT
+  const hasClaimedAndCanMint = nftStatus?.claimerNFT.hasClaimed && !nftStatus?.claimerNFT.minted;
 
   // Calculate ETH amount from USD
   const claimAmountEth =
@@ -331,6 +337,19 @@ export default function Home() {
                 <div className="flex items-center justify-center gap-3">
                   <Award className="w-6 h-6" />
                   <span>NFTs</span>
+                  {/* Notification Badge */}
+                  {hasClaimedAndCanMint && activeTab !== 'nfts' && (
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center"
+                      style={{ background: '#FFD700', border: '2px solid #000000' }}
+                    >
+                      <span className="text-xs font-black" style={{ color: '#000000' }}>
+                        !
+                      </span>
+                    </motion.div>
+                  )}
                 </div>
               </TabsTrigger>
             </TabsList>
@@ -346,7 +365,11 @@ export default function Home() {
                 </p>
               </div>
               <div className="max-w-4xl mx-auto">
-                <FaucetCard />
+                <FaucetCard
+                  onClaimSuccess={() => {
+                    setTimeout(() => setActiveTab('nfts'), 3000);
+                  }}
+                />
               </div>
             </TabsContent>
 
@@ -365,17 +388,7 @@ export default function Home() {
             </TabsContent>
 
             <TabsContent value="nfts" className="mt-0">
-              <div className="text-center mb-8">
-                <h2 className="text-5xl font-black uppercase mb-4" style={{ color: '#000000' }}>
-                  EXCLUSIVE <span style={{ color: '#0052FF' }}>NFTs</span>
-                </h2>
-                <p className="text-xl font-bold" style={{ color: '#666666' }}>
-                  Mint commemorative NFTs • Gasless minting • Limited supply
-                </p>
-              </div>
-              <div className="max-w-6xl mx-auto">
-                <NFTSection />
-              </div>
+              <NFTSection onTabChange={setActiveTab} />
             </TabsContent>
           </Tabs>
         </div>
