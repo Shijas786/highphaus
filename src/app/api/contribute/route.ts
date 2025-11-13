@@ -8,7 +8,7 @@ const RPC_URL = process.env.BASE_RPC_URL || 'https://mainnet.base.org';
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
-const ContributeSchema = z.object({
+const ContributeLogSchema = z.object({
   address: z.string().regex(/^0x[a-fA-F0-9]{40}$/),
   txHash: z.string().regex(/^0x[a-fA-F0-9]{64}$/),
 });
@@ -16,7 +16,7 @@ const ContributeSchema = z.object({
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { address, txHash } = ContributeSchema.parse(body);
+    const { address, txHash } = ContributeLogSchema.parse(body);
 
     if (!CONTRACT_ADDRESS) {
       return NextResponse.json(
@@ -28,13 +28,15 @@ export async function POST(request: NextRequest) {
     // Initialize contract to verify contribution
     const faucetContract = new FaucetContract(CONTRACT_ADDRESS, RPC_URL);
     const contribution = await faucetContract.getContribution(address);
+    const totalContributed = await faucetContract.getTotalContributed();
 
     return NextResponse.json(
       {
         success: true,
         txHash,
-        totalContribution: contribution.toString(),
-        message: 'Contribution recorded',
+        userContribution: contribution.toString(),
+        totalContributed: totalContributed.toString(),
+        message: 'Contribution logged',
       },
       { status: 200 }
     );
@@ -84,12 +86,14 @@ export async function GET(request: NextRequest) {
 
     const faucetContract = new FaucetContract(CONTRACT_ADDRESS, RPC_URL);
     const contribution = await faucetContract.getContribution(address);
+    const totalContributed = await faucetContract.getTotalContributed();
 
     return NextResponse.json(
       {
         success: true,
         address,
-        totalContribution: contribution.toString(),
+        userContribution: contribution.toString(),
+        totalContributed: totalContributed.toString(),
       },
       { status: 200 }
     );
@@ -105,4 +109,3 @@ export async function GET(request: NextRequest) {
     );
   }
 }
-

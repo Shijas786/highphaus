@@ -3,23 +3,16 @@
 import { useState } from 'react';
 import { FaucetCard } from '@/components/FaucetCard';
 import { ContributionCard } from '@/components/ContributionCard';
-import { NFTSection } from '@/components/NFTSection';
 import { useStats } from '@/hooks/use-stats';
 import { useEthPrice } from '@/hooks/use-eth-price';
-import { useNFTStatus } from '@/hooks/use-nft-status';
 import { CLAIM_AMOUNT_USD } from '@/config/constants';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Droplet, Heart, Award } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Droplet, Heart } from 'lucide-react';
 
 export default function Home() {
   const { data: stats } = useStats();
   const { data: ethPrice } = useEthPrice();
-  const { data: nftStatus } = useNFTStatus();
   const [activeTab, setActiveTab] = useState('claim');
-
-  // Check if user has claimed and can mint NFT
-  const hasClaimedAndCanMint = nftStatus?.claimerNFT.hasClaimed && !nftStatus?.claimerNFT.minted;
 
   // Calculate ETH amount from USD
   const claimAmountEth =
@@ -118,7 +111,7 @@ export default function Home() {
           >
             GET
             <br />
-            <span style={{ color: '#0052FF' }}>$0.03</span>
+            <span style={{ color: '#0052FF' }}>$0.10</span>
             <br />
             <span className="text-5xl md:text-6xl">IN ETH</span>
           </h1>
@@ -128,7 +121,7 @@ export default function Home() {
           </p>
 
           <p className="text-lg mb-12" style={{ color: '#666666' }}>
-            48-hour recurring claims • Farcaster verified • Gasless ⚡
+            7-day recurring claims • Farcaster verified • Reown powered
           </p>
 
           {/* ETH Price Display */}
@@ -213,13 +206,13 @@ export default function Home() {
               className="text-xs uppercase font-black tracking-widest mb-4"
               style={{ color: '#888888' }}
             >
-              NFTs MINTED
+              CONTRIBUTED
             </div>
             <div className="text-5xl lg:text-7xl font-black mb-2" style={{ color: '#FFFFFF' }}>
-              {stats ? stats.totalClaimants : '0'}
+              {stats ? (parseFloat(stats.totalClaimed) * 0.5).toFixed(2) : '0'}
             </div>
             <div className="text-sm font-black uppercase" style={{ color: '#0052FF' }}>
-              TOTAL
+              ETH
             </div>
           </div>
 
@@ -266,13 +259,13 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Tabbed Interface Section */}
+          {/* Tabbed Interface Section */}
       <section className="py-20" style={{ background: '#F5F5F5' }}>
         <div className="max-w-6xl mx-auto px-6">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             {/* Custom Athletic Tabs */}
             <TabsList
-              className="grid w-full grid-cols-3 mb-12 p-0 h-auto gap-2"
+              className="grid w-full grid-cols-2 mb-12 p-0 h-auto gap-2"
               style={{ background: 'transparent' }}
             >
               <TabsTrigger
@@ -304,6 +297,7 @@ export default function Home() {
                   background: activeTab === 'support' ? '#0052FF' : '#000000',
                   color: '#FFFFFF',
                   border: '3px solid #0052FF',
+                  clipPath: 'polygon(0% 0%, 97% 0%, 100% 100%, 3% 100%)',
                 }}
               >
                 {activeTab === 'support' && (
@@ -317,41 +311,6 @@ export default function Home() {
                   <span>SUPPORT</span>
                 </div>
               </TabsTrigger>
-
-              <TabsTrigger
-                value="nfts"
-                className="relative py-8 font-black text-lg uppercase tracking-wide transition-all data-[state=active]:scale-105"
-                style={{
-                  background: activeTab === 'nfts' ? '#0052FF' : '#000000',
-                  color: '#FFFFFF',
-                  border: '3px solid #0052FF',
-                  clipPath: 'polygon(0% 0%, 97% 0%, 100% 100%, 3% 100%)',
-                }}
-              >
-                {activeTab === 'nfts' && (
-                  <div
-                    className="absolute bottom-0 left-0 w-full h-2"
-                    style={{ background: '#00D4FF' }}
-                  />
-                )}
-                <div className="flex items-center justify-center gap-3">
-                  <Award className="w-6 h-6" />
-                  <span>NFTs</span>
-                  {/* Notification Badge */}
-                  {hasClaimedAndCanMint && activeTab !== 'nfts' && (
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      className="absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center"
-                      style={{ background: '#FFD700', border: '2px solid #000000' }}
-                    >
-                      <span className="text-xs font-black" style={{ color: '#000000' }}>
-                        !
-                      </span>
-                    </motion.div>
-                  )}
-                </div>
-              </TabsTrigger>
             </TabsList>
 
             {/* Tab Content */}
@@ -361,15 +320,11 @@ export default function Home() {
                   FREE <span style={{ color: '#0052FF' }}>CLAIM</span>
                 </h2>
                 <p className="text-xl font-bold" style={{ color: '#666666' }}>
-                  Everyone gets $0.03 worth of ETH • 48hr cooldown • Gasless ⚡
+                  Everyone gets $0.10 worth of ETH • 7-day cooldown • Reown powered
                 </p>
               </div>
               <div className="max-w-4xl mx-auto">
-                <FaucetCard
-                  onClaimSuccess={() => {
-                    setTimeout(() => setActiveTab('nfts'), 3000);
-                  }}
-                />
+                <FaucetCard />
               </div>
             </TabsContent>
 
@@ -379,7 +334,7 @@ export default function Home() {
                   SUPPORT <span style={{ color: '#0052FF' }}>BUILDERS</span>
                 </h2>
                 <p className="text-xl font-bold" style={{ color: '#666666' }}>
-                  Contribute USDC to help fund fellow builders • Get OG NFT
+                  Contribute ETH to help fund fellow builders • 100% goes to gas claims
                 </p>
               </div>
               <div className="max-w-4xl mx-auto">
@@ -387,9 +342,6 @@ export default function Home() {
               </div>
             </TabsContent>
 
-            <TabsContent value="nfts" className="mt-0">
-              <NFTSection onTabChange={setActiveTab} />
-            </TabsContent>
           </Tabs>
         </div>
       </section>
@@ -412,7 +364,7 @@ export default function Home() {
             className="text-sm font-bold uppercase tracking-widest mb-8"
             style={{ color: '#0052FF' }}
           >
-            FREE ETH FOR BUILDERS • 48-HOUR COOLDOWN • BASE NETWORK
+            FREE ETH FOR BUILDERS • 7-DAY COOLDOWN • BASE NETWORK
           </div>
 
           <div className="flex justify-center gap-2 mb-6">

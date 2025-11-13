@@ -1,49 +1,41 @@
 import { ethers } from 'ethers';
 
-// Base USDC Contract Address (Mainnet)
-export const USDC_ADDRESS = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913';
+// Chainlink ETH/USD Price Feed on Base Mainnet
+export const CHAINLINK_ETH_USD_FEED = '0x694AA1769357215DE4FAC081bf1f309aDC325306';
 
-// Contract ABIs
+// Contract ABI for HighPhausFaucetDynamic
 export const FAUCET_ABI = [
   // View functions
-  'function claimAmount() view returns (uint256)',
-  'function canClaim(uint256 fid) view returns (bool)',
-  'function getNextClaimTime(uint256 fid) view returns (uint256)',
-  'function getTimeUntilNextClaim(uint256 fid) view returns (uint256)',
-  'function lastClaimTime(uint256 fid) view returns (uint256)',
-  'function hasClaimed(uint256 fid) view returns (bool)',
-  'function contributions(address user) view returns (uint256)',
-  'function getContribution(address user) view returns (uint256)',
-  'function isEligibleForOGNFT(address user) view returns (bool)',
-  'function hasOGNFT(address user) view returns (bool)',
-  'function hasClaimerNFT(uint256 fid) view returns (bool)',
-  'function usdcToken() view returns (address)',
-  'function signerWallet() view returns (address)',
+  'function CLAIM_INTERVAL() view returns (uint256)',
+  'function trustedAttestor() view returns (address)',
+  'function ethUsdFeed() view returns (address)',
+  'function totalContributed() view returns (uint256)',
+  'function contributions(address) view returns (uint256)',
+  'function lastClaimByFarcaster(bytes32) view returns (uint256)',
+  'function lastClaimByWallet(address) view returns (uint256)',
+  'function getEthUsdPrice() view returns (uint256)',
+  'function getCurrentClaimAmountWei() view returns (uint256)',
+  'function canClaimByFarcaster(bytes32 farcasterIdHash) view returns (bool)',
+  'function canClaimByWallet(address wallet) view returns (bool)',
+  'function getTimeUntilNextClaimFarcaster(bytes32 farcasterIdHash) view returns (uint256)',
+  'function getTimeUntilNextClaimWallet(address wallet) view returns (uint256)',
 
   // Write functions
-  'function claimGasless(uint256 fid, uint256 nonce, bytes signature)',
-  'function claim(uint256 fid)',
-  'function contribute(uint256 amount)',
-  'function mintOGNFT(address to)',
-  'function mintClaimerNFT(uint256 fid, address to)',
+  'function claim(bytes32 farcasterIdHash, uint256 expiry, bytes signature)',
+  'function contribute() payable',
+
+  // Admin functions
+  'function setTrustedAttestor(address _attestor)',
+  'function withdraw(address payable to, uint256 amount)',
+  'function withdrawAll(address payable to)',
 
   // Events
-  'event Claimed(uint256 indexed fid, address indexed user, uint256 amount, uint256 timestamp)',
-  'event ClaimedGasless(uint256 indexed fid, address indexed user, uint256 amount, uint256 nonce)',
-  'event Contributed(address indexed user, uint256 amount, uint256 totalContribution)',
-  'event OGNFTMinted(address indexed user, uint256 tokenId)',
-  'event ClaimerNFTMinted(uint256 indexed fid, address indexed user, uint256 tokenId)',
+  'event Claimed(address indexed wallet, bytes32 indexed farcasterIdHash, uint256 amount, uint256 timestamp)',
+  'event Contributed(address indexed contributor, uint256 amount, uint256 newTotal)',
+  'event TrustedAttestorUpdated(address indexed oldAttestor, address indexed newAttestor)',
 ];
 
-export const USDC_ABI = [
-  'function balanceOf(address account) view returns (uint256)',
-  'function allowance(address owner, address spender) view returns (uint256)',
-  'function approve(address spender, uint256 amount) returns (bool)',
-  'function transfer(address to, uint256 amount) returns (bool)',
-  'function decimals() view returns (uint8)',
-];
-
-// Contract interaction helper functions
+// Contract interaction helper class
 export class FaucetContract {
   private contract: ethers.Contract;
   private provider: ethers.Provider;
@@ -54,51 +46,58 @@ export class FaucetContract {
   }
 
   // View functions
-  async getClaimAmount(): Promise<bigint> {
-    return await this.contract.claimAmount();
+  async getClaimInterval(): Promise<number> {
+    const interval = await this.contract.CLAIM_INTERVAL();
+    return Number(interval);
   }
 
-  async canClaim(fid: number): Promise<boolean> {
-    return await this.contract.canClaim(fid);
+  async getTrustedAttestor(): Promise<string> {
+    return await this.contract.trustedAttestor();
   }
 
-  async getNextClaimTime(fid: number): Promise<number> {
-    const timestamp = await this.contract.getNextClaimTime(fid);
-    return Number(timestamp);
-  }
-
-  async getTimeUntilNextClaim(fid: number): Promise<number> {
-    const seconds = await this.contract.getTimeUntilNextClaim(fid);
-    return Number(seconds);
-  }
-
-  async getLastClaimTime(fid: number): Promise<number> {
-    const timestamp = await this.contract.lastClaimTime(fid);
-    return Number(timestamp);
-  }
-
-  async hasClaimed(fid: number): Promise<boolean> {
-    return await this.contract.hasClaimed(fid);
+  async getTotalContributed(): Promise<bigint> {
+    return await this.contract.totalContributed();
   }
 
   async getContribution(address: string): Promise<bigint> {
-    return await this.contract.getContribution(address);
+    return await this.contract.contributions(address);
   }
 
-  async isEligibleForOGNFT(address: string): Promise<boolean> {
-    return await this.contract.isEligibleForOGNFT(address);
+  async getEthUsdPrice(): Promise<number> {
+    const price = await this.contract.getEthUsdPrice();
+    return Number(price); // Price with 8 decimals
   }
 
-  async hasOGNFT(address: string): Promise<boolean> {
-    return await this.contract.hasOGNFT(address);
+  async getCurrentClaimAmountWei(): Promise<bigint> {
+    return await this.contract.getCurrentClaimAmountWei();
   }
 
-  async hasClaimerNFT(fid: number): Promise<boolean> {
-    return await this.contract.hasClaimerNFT(fid);
+  async canClaimByFarcaster(farcasterIdHash: string): Promise<boolean> {
+    return await this.contract.canClaimByFarcaster(farcasterIdHash);
   }
 
-  async getSignerWallet(): Promise<string> {
-    return await this.contract.signerWallet();
+  async canClaimByWallet(wallet: string): Promise<boolean> {
+    return await this.contract.canClaimByWallet(wallet);
+  }
+
+  async getTimeUntilNextClaimFarcaster(farcasterIdHash: string): Promise<number> {
+    const seconds = await this.contract.getTimeUntilNextClaimFarcaster(farcasterIdHash);
+    return Number(seconds);
+  }
+
+  async getTimeUntilNextClaimWallet(wallet: string): Promise<number> {
+    const seconds = await this.contract.getTimeUntilNextClaimWallet(wallet);
+    return Number(seconds);
+  }
+
+  async getLastClaimByFarcaster(farcasterIdHash: string): Promise<number> {
+    const timestamp = await this.contract.lastClaimByFarcaster(farcasterIdHash);
+    return Number(timestamp);
+  }
+
+  async getLastClaimByWallet(wallet: string): Promise<number> {
+    const timestamp = await this.contract.lastClaimByWallet(wallet);
+    return Number(timestamp);
   }
 
   // Get contract with signer for write operations
@@ -112,68 +111,43 @@ export class FaucetContract {
   }
 }
 
-// USDC Contract helper
-export class USDCContract {
-  private contract: ethers.Contract;
-  private provider: ethers.Provider;
-
-  constructor(providerUrl: string) {
-    this.provider = new ethers.JsonRpcProvider(providerUrl);
-    this.contract = new ethers.Contract(USDC_ADDRESS, USDC_ABI, this.provider);
-  }
-
-  async getBalance(address: string): Promise<bigint> {
-    return await this.contract.balanceOf(address);
-  }
-
-  async getAllowance(owner: string, spender: string): Promise<bigint> {
-    return await this.contract.allowance(owner, spender);
-  }
-
-  async getDecimals(): Promise<number> {
-    return await this.contract.decimals();
-  }
-
-  getContractWithSigner(privateKey: string): ethers.Contract {
-    const wallet = new ethers.Wallet(privateKey, this.provider);
-    return new ethers.Contract(USDC_ADDRESS, USDC_ABI, wallet);
-  }
+// Generate Farcaster ID hash (keccak256 of FID)
+export function generateFarcasterIdHash(fid: number): string {
+  return ethers.keccak256(ethers.toBeHex(fid, 32));
 }
 
-// Signature generation for gasless transactions
+// Generate Reown attestation signature for claim
 export async function generateClaimSignature(
   privateKey: string,
-  userAddress: string,
-  fid: number,
-  nonce: number
+  farcasterIdHash: string,
+  walletAddress: string,
+  expiry: number,
+  chainId: number,
+  contractAddress: string
 ): Promise<string> {
   const wallet = new ethers.Wallet(privateKey);
   
-  // Create message hash
-  const messageHash = ethers.solidityPackedKeccak256(
-    ['address', 'uint256', 'uint256'],
-    [userAddress, fid, nonce]
+  // Create payload hash matching contract logic
+  const payloadHash = ethers.solidityPackedKeccak256(
+    ['bytes32', 'address', 'uint256', 'uint256', 'address'],
+    [farcasterIdHash, walletAddress, expiry, chainId, contractAddress]
   );
 
   // Sign the message hash
-  const signature = await wallet.signMessage(ethers.getBytes(messageHash));
+  const signature = await wallet.signMessage(ethers.getBytes(payloadHash));
   return signature;
 }
 
-// Helper to format USDC amount (6 decimals)
-export function parseUSDC(amount: string): bigint {
-  return ethers.parseUnits(amount, 6);
-}
-
-export function formatUSDC(amount: bigint): string {
-  return ethers.formatUnits(amount, 6);
-}
-
-// Helper to format ETH amount (18 decimals)
+// Helper to format ETH amount
 export function formatETH(amount: bigint): string {
   return ethers.formatEther(amount);
 }
 
 export function parseETH(amount: string): bigint {
   return ethers.parseEther(amount);
+}
+
+// Format USD price from Chainlink (8 decimals)
+export function formatUSDPrice(price: number): string {
+  return (price / 1e8).toFixed(2);
 }

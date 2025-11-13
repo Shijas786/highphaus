@@ -7,25 +7,29 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { useContribute } from '@/hooks/use-contribute';
 import { useAccount } from 'wagmi';
-import { Loader2, DollarSign, Heart } from 'lucide-react';
+import { Loader2, Heart, Zap } from 'lucide-react';
 
 export function ContributionCard() {
   const { isConnected } = useAccount();
-  const { contribute, isLoading } = useContribute();
+  const { contribute, isLoading, txHash } = useContribute();
   const [amount, setAmount] = useState('');
 
   const handleContribute = async () => {
-    if (!amount || parseFloat(amount) < 1) return;
-    await contribute(amount);
-    setAmount(''); // Reset after contribution
+    if (!amount || parseFloat(amount) <= 0) return;
+    const hash = await contribute(amount);
+    if (hash) {
+      setAmount(''); // Reset after contribution
+    }
   };
 
-  const quickAmounts = ['10', '50', '100'];
+  const quickAmounts = ['0.01', '0.05', '0.1'];
 
   if (!isConnected) {
     return (
-      <Card className="p-8 text-center">
-        <p className="text-gray-400">Connect your wallet to contribute</p>
+      <Card className="p-8 text-center" style={{ background: '#1a1a1a', border: '3px solid #0052FF' }}>
+        <p className="text-gray-400 font-bold uppercase text-sm">
+          Connect your wallet to support builders
+        </p>
       </Card>
     );
   }
@@ -55,7 +59,7 @@ export function ContributionCard() {
               Support Builders
             </h3>
             <p className="text-sm" style={{ color: '#CCCCCC' }}>
-              Contribute USDC to help fund fellow builders and receive OG NFT
+              Contribute ETH to help fund fellow builders on Base
             </p>
           </div>
 
@@ -79,8 +83,8 @@ export function ContributionCard() {
                 {amount === quickAmount && (
                   <div className="absolute bottom-0 left-0 w-full h-1" style={{ background: '#00D4FF' }} />
                 )}
-                <div>${quickAmount}</div>
-                <div className="text-xs font-bold uppercase opacity-60 mt-1">USDC</div>
+                <div>{quickAmount}</div>
+                <div className="text-xs font-bold uppercase opacity-60 mt-1">ETH</div>
               </button>
             ))}
           </div>
@@ -88,15 +92,15 @@ export function ContributionCard() {
           {/* Custom amount input */}
           <div className="space-y-2">
             <label className="text-xs font-bold uppercase" style={{ color: '#888888' }}>
-              Custom Amount (Min $1 USDC)
+              Custom Amount (ETH)
             </label>
             <Input
               type="number"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              min="1"
-              step="1"
-              placeholder="Enter USDC amount"
+              min="0.001"
+              step="0.001"
+              placeholder="Enter ETH amount"
               className="w-full px-6 py-4 font-black text-xl text-center uppercase"
               style={{
                 background: '#000000',
@@ -115,32 +119,32 @@ export function ContributionCard() {
             }}
           >
             <div className="text-sm font-black uppercase mb-4" style={{ color: '#FFFFFF' }}>
-              Builder Benefits
+              Builder Impact
             </div>
             <div className="space-y-3">
               <div className="flex items-center gap-3">
                 <span className="text-xl" style={{ color: '#0052FF' }}>✓</span>
                 <span className="text-xs font-bold uppercase" style={{ color: '#CCCCCC' }}>
-                  Receive Limited Edition OG NFT
+                  Help New Builders Get Started
                 </span>
               </div>
               <div className="flex items-center gap-3">
                 <span className="text-xl" style={{ color: '#0052FF' }}>✓</span>
                 <span className="text-xs font-bold uppercase" style={{ color: '#CCCCCC' }}>
-                  Support Fellow Builders
+                  Support Base Ecosystem Growth
                 </span>
               </div>
               <div className="flex items-center gap-3">
                 <span className="text-xl" style={{ color: '#0052FF' }}>✓</span>
                 <span className="text-xs font-bold uppercase" style={{ color: '#CCCCCC' }}>
-                  Help Grow Base Ecosystem
+                  100% Goes to Gas Claims
                 </span>
               </div>
             </div>
           </div>
 
           {/* Contribution amount display */}
-          {amount && parseFloat(amount) >= 1 && (
+          {amount && parseFloat(amount) > 0 && (
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -148,10 +152,11 @@ export function ContributionCard() {
               style={{ background: '#0052FF20', border: '1px solid #0052FF' }}
             >
               <div className="text-sm font-bold" style={{ color: '#FFFFFF' }}>
-                💰 You will contribute: {amount} USDC
+                <Zap className="w-4 h-4 inline mr-2" />
+                You will contribute: {amount} ETH
               </div>
               <div className="text-xs opacity-60 mt-1" style={{ color: '#FFFFFF' }}>
-                (Helps {Math.floor(parseFloat(amount) / 0.03)} builders claim gas)
+                (Helps {Math.floor(parseFloat(amount) / 0.0001)} builders claim $0.10 gas)
               </div>
             </motion.div>
           )}
@@ -159,7 +164,7 @@ export function ContributionCard() {
           {/* Contribute button */}
           <Button
             onClick={handleContribute}
-            disabled={!amount || parseFloat(amount) < 1 || isLoading}
+            disabled={!amount || parseFloat(amount) <= 0 || isLoading}
             className="w-full py-8 font-black text-2xl uppercase"
             style={{
               background: 'linear-gradient(135deg, #0052FF 0%, #00D4FF 100%)',
@@ -174,18 +179,32 @@ export function ContributionCard() {
               </>
             ) : (
               <>
-                <DollarSign className="w-5 h-5" />
-                <span>Contribute {amount || '0'} USDC</span>
+                <Heart className="w-5 h-5" />
+                <span>Contribute {amount || '0'} ETH</span>
               </>
             )}
           </Button>
 
+          {/* Transaction link */}
+          {txHash && (
+            <motion.a
+              href={`https://basescan.org/tx/${txHash}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block text-center text-xs font-bold uppercase hover:underline"
+              style={{ color: '#00D4FF' }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              View Transaction →
+            </motion.a>
+          )}
+
           <p className="text-center text-xs font-bold uppercase" style={{ color: '#888888' }}>
-            Gasless for claimers • Support in USDC • Get exclusive OG NFT
+            Every ETH helps new builders • 100% transparent • On-chain tracking
           </p>
         </div>
       </Card>
     </motion.div>
   );
 }
-

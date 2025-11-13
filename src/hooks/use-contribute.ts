@@ -1,14 +1,11 @@
 import { useState } from 'react';
-import { useAccount } from 'wagmi';
-import { parseUSDC, USDC_ADDRESS } from '@/lib/faucet-contract';
+import { useAccount, useWriteContract } from 'wagmi';
+import { parseEther } from 'viem';
 import { toast } from 'sonner';
-import { getPublicClient, getWalletClient } from '@wagmi/core';
-import { wagmiConfig } from '@/config/wagmi';
 import { parseAbi } from 'viem';
 
-const USDC_ABI = parseAbi([
-  'function approve(address spender, uint256 amount) returns (bool)',
-  'function allowance(address owner, address spender) view returns (uint256)',
+const CONTRIBUTE_ABI = parseAbi([
+  'function contribute() payable',
 ]);
 
 export function useContribute() {
@@ -16,15 +13,17 @@ export function useContribute() {
   const [isLoading, setIsLoading] = useState(false);
   const [txHash, setTxHash] = useState<string | null>(null);
 
-  const contribute = async (amount: string): Promise<string | undefined> => {
+  const { writeContractAsync } = useWriteContract();
+
+  const contribute = async (amountEth: string): Promise<string | undefined> => {
     if (!address) {
       toast.error('Please connect your wallet');
       return undefined;
     }
 
-    const amountNum = parseFloat(amount);
-    if (isNaN(amountNum) || amountNum < 1) {
-      toast.error('Minimum contribution is 1 USDC');
+    const amountNum = parseFloat(amountEth);
+    if (isNaN(amountNum) || amountNum <= 0) {
+      toast.error('Please enter a valid amount');
       return undefined;
     }
 
@@ -38,56 +37,18 @@ export function useContribute() {
         return undefined;
       }
 
-      // Get wallet and public clients
-      const walletClient = await getWalletClient(wagmiConfig, { account: address });
-      const publicClient = getPublicClient(wagmiConfig);
-
-      if (!walletClient || !publicClient) {
-        toast.error('Failed to get wallet client');
-        return undefined;
-      }
-
-      // Parse USDC amount (6 decimals)
-      const usdcAmount = parseUSDC(amount);
-
-      // Check allowance
-      const currentAllowance = await publicClient.readContract({
-        address: USDC_ADDRESS as `0x${string}`,
-        abi: USDC_ABI,
-        functionName: 'allowance',
-        args: [address, contractAddress],
-      });
-
-      // Approve USDC if needed
-      if (currentAllowance < usdcAmount) {
-        toast.info('Approving USDC...');
-        
-        const approveTx = await walletClient.writeContract({
-          address: USDC_ADDRESS as `0x${string}`,
-          abi: USDC_ABI,
-          functionName: 'approve',
-          args: [contractAddress, usdcAmount],
-        });
-
-        toast.info('Waiting for approval confirmation...');
-        await publicClient.waitForTransactionReceipt({ hash: approveTx });
-        toast.success('USDC approved');
-      }
-
-      // Contribute to contract
-      toast.info('Contributing USDC...');
+      // Contribute ETH to contract
+      toast.info('Contributing ETH...');
       
-      const contributeTx = await walletClient.writeContract({
+      const hash = await writeContractAsync({
         address: contractAddress,
-        abi: parseAbi(['function contribute(uint256 amount)']),
+        abi: CONTRIBUTE_ABI,
         functionName: 'contribute',
-        args: [usdcAmount],
+        value: parseEther(amountEth),
       });
 
-      toast.info('Waiting for contribution confirmation...');
-      const receipt = await publicClient.waitForTransactionReceipt({ hash: contributeTx });
-      
-      setTxHash(receipt.transactionHash);
+      setTxHash(hash);
+      toast.info('Waiting for confirmation...');
 
       // Log contribution on server
       await fetch('/api/contribute', {
@@ -95,12 +56,12 @@ export function useContribute() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           address,
-          txHash: receipt.transactionHash,
+          txHash: hash,
         }),
       });
 
-      toast.success('Contribution successful! 🎉');
-      return receipt.transactionHash;
+      toast.success('Contribution successful! 🎉 Thank you for supporting builders!');
+      return hash;
     } catch (error) {
       console.error('Contribution error:', error);
       toast.error('Contribution failed. Please try again.');
@@ -116,4 +77,3 @@ export function useContribute() {
     txHash,
   };
 }
-

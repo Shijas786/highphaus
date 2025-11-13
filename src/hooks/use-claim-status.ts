@@ -1,12 +1,15 @@
 import { useQuery } from '@tanstack/react-query';
 import { useFarcaster } from '@/components/FarcasterProvider';
+import { useAccount } from 'wagmi';
 
 interface ClaimStatusData {
   canClaim: boolean;
-  nextClaimTime: number;
+  canClaimFarcaster: boolean;
+  canClaimWallet: boolean;
   secondsUntilClaim: number;
-  hasClaimed: boolean;
+  claimAmountWei: string;
   fid: number;
+  farcasterIdHash: string;
 }
 
 interface ClaimStatusResponse {
@@ -15,8 +18,8 @@ interface ClaimStatusResponse {
   error?: string;
 }
 
-async function fetchClaimStatus(fid: number): Promise<ClaimStatusData> {
-  const response = await fetch(`/api/claim-status?fid=${fid}`);
+async function fetchClaimStatus(fid: number, address: string): Promise<ClaimStatusData> {
+  const response = await fetch(`/api/claim-status?fid=${fid}&address=${address}`);
   const result: ClaimStatusResponse = await response.json();
 
   if (!result.success || !result.data) {
@@ -28,13 +31,13 @@ async function fetchClaimStatus(fid: number): Promise<ClaimStatusData> {
 
 export function useClaimStatus() {
   const { user } = useFarcaster();
+  const { address } = useAccount();
 
   return useQuery({
-    queryKey: ['claim-status', user?.fid],
-    queryFn: () => fetchClaimStatus(user!.fid),
-    enabled: !!user?.fid,
+    queryKey: ['claim-status', user?.fid, address],
+    queryFn: () => fetchClaimStatus(user!.fid, address!),
+    enabled: !!user?.fid && !!address,
     refetchInterval: 10000, // Refresh every 10 seconds
     staleTime: 5000,
   });
 }
-

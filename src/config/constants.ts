@@ -10,11 +10,11 @@ export const FAUCET_CONTRACT_ADDRESS =
 // Reown AppKit Project ID
 export const REOWN_PROJECT_ID = process.env.NEXT_PUBLIC_REOWN_PROJECT_ID || '';
 
-// Claim amount in USD - we calculate ETH amount dynamically based on price
-export const CLAIM_AMOUNT_USD = 0.03; // $0.03 worth of ETH
+// Claim amount in USD - we calculate ETH amount dynamically based on Chainlink oracle
+export const CLAIM_AMOUNT_USD = 0.10; // $0.10 worth of ETH
 
-// 48-HOUR RECURRING CLAIMS
-export const COOLDOWN_PERIOD = 48 * 60 * 60; // 48 hours in seconds
+// 7-DAY RECURRING CLAIMS
+export const COOLDOWN_PERIOD = 7 * 24 * 60 * 60; // 7 days in seconds
 
 export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
 

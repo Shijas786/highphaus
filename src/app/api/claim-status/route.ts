@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { FaucetContract } from '@/lib/faucet-contract';
+import { FaucetContract, generateFarcasterIdHash } from '@/lib/faucet-contract';
 
 const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS!;
 const RPC_URL = process.env.BASE_RPC_URL || 'https://mainnet.base.org';
@@ -11,10 +11,11 @@ export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const fid = searchParams.get('fid');
+    const address = searchParams.get('address');
 
-    if (!fid) {
+    if (!fid || !address) {
       return NextResponse.json(
-        { success: false, error: 'FID is required' },
+        { success: false, error: 'FID and address are required' },
         { status: 400 }
       );
     }
@@ -37,23 +38,39 @@ export async function GET(request: NextRequest) {
     // Initialize contract
     const faucetContract = new FaucetContract(CONTRACT_ADDRESS, RPC_URL);
 
-    // Get claim status
-    const [canClaim, nextClaimTime, secondsUntilClaim, hasClaimed] = await Promise.all([
-      faucetContract.canClaim(fidNumber),
-      faucetContract.getNextClaimTime(fidNumber),
-      faucetContract.getTimeUntilNextClaim(fidNumber),
-      faucetContract.hasClaimed(fidNumber),
+    // Generate Farcaster ID hash
+    const farcasterIdHash = generateFarcasterIdHash(fidNumber);
+
+    // Get claim status for both Farcaster and wallet
+    const [
+      canClaimFarcaster,
+      canClaimWallet,
+      timeUntilFarcaster,
+      timeUntilWallet,
+      claimAmount,
+    ] = await Promise.all([
+      faucetContract.canClaimByFarcaster(farcasterIdHash),
+      faucetContract.canClaimByWallet(address),
+      faucetContract.getTimeUntilNextClaimFarcaster(farcasterIdHash),
+      faucetContract.getTimeUntilNextClaimWallet(address),
+      faucetContract.getCurrentClaimAmountWei(),
     ]);
+
+    // User can only claim if BOTH conditions are met
+    const canClaim = canClaimFarcaster && canClaimWallet;
+    const secondsUntilClaim = Math.max(timeUntilFarcaster, timeUntilWallet);
 
     return NextResponse.json(
       {
         success: true,
         data: {
           canClaim,
-          nextClaimTime,
+          canClaimFarcaster,
+          canClaimWallet,
           secondsUntilClaim,
-          hasClaimed,
+          claimAmountWei: claimAmount.toString(),
           fid: fidNumber,
+          farcasterIdHash,
         },
       },
       { status: 200 }
@@ -70,4 +87,3 @@ export async function GET(request: NextRequest) {
     );
   }
 }
-
