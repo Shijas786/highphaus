@@ -50,10 +50,7 @@ FAUCET_PRIVATE_KEY=0xYourServerWalletPrivateKeyHere
 BASE_RPC_URL=https://mainnet.base.org
 NEXT_PUBLIC_BASE_RPC=https://mainnet.base.org
 
-# Get from https://cloud.walletconnect.com/
-NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_project_id
-
-# Your domain
+# Your domain (optional)
 NEXT_PUBLIC_HOST=your-domain.com
 ```
 

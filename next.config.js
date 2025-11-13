@@ -19,9 +19,8 @@ const nextConfig = {
 
   // Environment variables validation
   env: {
-    NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID,
+    NEXT_PUBLIC_CONTRACT_ADDRESS: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS,
     NEXT_PUBLIC_BASE_RPC: process.env.NEXT_PUBLIC_BASE_RPC,
-    NEXT_PUBLIC_FAUCET_CONTRACT_ADDRESS: process.env.NEXT_PUBLIC_FAUCET_CONTRACT_ADDRESS,
   },
 
   // Image optimization

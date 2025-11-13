@@ -86,10 +86,7 @@ FAUCET_PRIVATE_KEY=0xYourServerWalletPrivateKey
 BASE_RPC_URL=https://mainnet.base.org
 NEXT_PUBLIC_BASE_RPC=https://mainnet.base.org
 
-# WalletConnect
-NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_walletconnect_project_id
-
-# Application URL
+# Application URL (optional)
 NEXT_PUBLIC_HOST=your-domain.com
 ```
 

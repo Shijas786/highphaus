@@ -1,31 +1,17 @@
 import { Address } from 'viem';
 import { base, baseSepolia } from 'viem/chains';
 
-// Validate required environment variables
-const requiredEnvVars = ['NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID'] as const;
-
-requiredEnvVars.forEach((envVar) => {
-  if (!process.env[envVar]) {
-    console.warn(`⚠️  Missing environment variable: ${envVar}`);
-  }
-});
-
 export const IS_MOCK_MODE = process.env.NEXT_PUBLIC_MOCK_MODE === 'true';
 
-export const WALLETCONNECT_PROJECT_ID =
-  process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'YOUR_PROJECT_ID_HERE';
-
-export const PIMLICO_API_KEY = process.env.NEXT_PUBLIC_PIMLICO_API_KEY || '';
-
 export const FAUCET_CONTRACT_ADDRESS =
-  (process.env.NEXT_PUBLIC_FAUCET_CONTRACT_ADDRESS as Address) ||
+  (process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as Address) ||
   '0x0000000000000000000000000000000000000000';
 
 // Claim amount in USD - we calculate ETH amount dynamically based on price
-export const CLAIM_AMOUNT_USD = 0.1; // $0.10 worth of ETH
+export const CLAIM_AMOUNT_USD = 0.03; // $0.03 worth of ETH
 
-// ONE-TIME CLAIM ONLY - No cooldown, each wallet can only claim once EVER
-export const ONE_TIME_CLAIM_ONLY = true;
+// 48-HOUR RECURRING CLAIMS
+export const COOLDOWN_PERIOD = 48 * 60 * 60; // 48 hours in seconds
 
 export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
 

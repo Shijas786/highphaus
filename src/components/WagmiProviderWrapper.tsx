@@ -8,3 +8,4 @@ export function WagmiProviderWrapper({ children }: { children: ReactNode }) {
   return <WagmiProvider config={config}>{children}</WagmiProvider>;
 }
 
+

@@ -57,12 +57,15 @@ Create `.env.local` with:
 
 ```env
 # Required
-NEXT_PUBLIC_PRIVY_APP_ID=cmhni9xo30171l50cunm9361e
-NEXT_PUBLIC_FAUCET_CONTRACT_ADDRESS=0x527585EE01F9a86B895b98Fb59E14d8C943cF6db
-NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_walletconnect_id
+NEXT_PUBLIC_CONTRACT_ADDRESS=0xYourContractAddress
+FAUCET_PRIVATE_KEY=0xYourServerWalletPrivateKey
+
+# RPC URLs
+BASE_RPC_URL=https://mainnet.base.org
+NEXT_PUBLIC_BASE_RPC=https://mainnet.base.org
 ```
 
-See `FARCASTER_ONLY_SETUP.md` and `DEPLOYED_CONTRACT_INFO.md` for details.
+See `DEPLOYMENT_INSTRUCTIONS.md` and `QUICK_START_GUIDE.md` for full setup.
 
 ## 📚 Documentation
 

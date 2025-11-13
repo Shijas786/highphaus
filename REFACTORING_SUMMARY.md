@@ -167,10 +167,7 @@ FAUCET_PRIVATE_KEY=0x...
 BASE_RPC_URL=https://mainnet.base.org
 NEXT_PUBLIC_BASE_RPC=https://mainnet.base.org
 
-# WalletConnect
-NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=...
-
-# App
+# App (optional)
 NEXT_PUBLIC_HOST=your-domain.com
 ```
 

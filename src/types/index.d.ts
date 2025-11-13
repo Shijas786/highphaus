@@ -39,7 +39,7 @@ export interface TransactionState {
 declare global {
   namespace NodeJS {
     interface ProcessEnv {
-      NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID: string;
+      NEXT_PUBLIC_CONTRACT_ADDRESS?: string;
       NEXT_PUBLIC_BASE_RPC: string;
       NEXT_PUBLIC_BASE_SEPOLIA_RPC: string;
       NEXT_PUBLIC_FAUCET_CONTRACT_ADDRESS: string;
