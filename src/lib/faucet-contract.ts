@@ -111,9 +111,11 @@ export class FaucetContract {
   }
 }
 
-// Generate Farcaster ID hash (keccak256 of FID)
+// Generate Farcaster ID hash (keccak256 of Farcaster ID string)
 export function generateFarcasterIdHash(fid: number): string {
-  return ethers.keccak256(ethers.toBeHex(fid, 32));
+  // Hash the string "farcaster:{fid}" for privacy
+  const farcasterIdString = `farcaster:${fid}`;
+  return ethers.keccak256(ethers.toUtf8Bytes(farcasterIdString));
 }
 
 // Generate Reown attestation signature for claim
