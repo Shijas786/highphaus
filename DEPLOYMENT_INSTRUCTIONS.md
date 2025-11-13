@@ -76,6 +76,9 @@ You'll need the following for deployment:
 Create `.env.local` file:
 
 ```env
+# Reown AppKit (get from https://cloud.reown.com)
+NEXT_PUBLIC_REOWN_PROJECT_ID=your_reown_project_id
+
 # Contract Configuration
 NEXT_PUBLIC_CONTRACT_ADDRESS=0xYourContractAddress
 

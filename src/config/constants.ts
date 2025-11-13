@@ -7,6 +7,9 @@ export const FAUCET_CONTRACT_ADDRESS =
   (process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as Address) ||
   '0x0000000000000000000000000000000000000000';
 
+// Reown AppKit Project ID
+export const REOWN_PROJECT_ID = process.env.NEXT_PUBLIC_REOWN_PROJECT_ID || '';
+
 // Claim amount in USD - we calculate ETH amount dynamically based on price
 export const CLAIM_AMOUNT_USD = 0.03; // $0.03 worth of ETH
 

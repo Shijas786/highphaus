@@ -35,11 +35,20 @@ Your Farcaster Gas Faucet has been completely refactored with:
 
 📚 **Full instructions:** See `DEPLOYMENT_INSTRUCTIONS.md`
 
-### 2️⃣ Configure Environment Variables (5 minutes)
+### 2️⃣ Configure Environment Variables (10 minutes)
+
+**First, get Reown Project ID:**
+1. Visit https://cloud.reown.com
+2. Create a free account
+3. Create a new project
+4. Copy your Project ID
 
 Create `.env.local` file:
 
 ```env
+# Reown AppKit (get from cloud.reown.com)
+NEXT_PUBLIC_REOWN_PROJECT_ID=your_reown_project_id
+
 # Your deployed contract address from step 1
 NEXT_PUBLIC_CONTRACT_ADDRESS=0xYourContractAddressHere
 

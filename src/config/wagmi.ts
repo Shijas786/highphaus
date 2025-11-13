@@ -1,22 +1,24 @@
-import { http, createConfig } from 'wagmi';
-import { base, baseSepolia } from 'wagmi/chains';
-import { injected } from 'wagmi/connectors';
+// Reown AppKit is now configured in WagmiProviderWrapper.tsx
+// This file exports the config for backward compatibility
 
-// Configure chains and transports
-export const config = createConfig({
-  chains: [base, baseSepolia],
-  connectors: [
-    injected({ shimDisconnect: true }),
-  ],
-  transports: {
-    [base.id]: http(process.env.NEXT_PUBLIC_BASE_RPC || 'https://mainnet.base.org'),
-    [baseSepolia.id]: http(process.env.NEXT_PUBLIC_BASE_SEPOLIA_RPC || 'https://sepolia.base.org'),
-  },
+import { WagmiAdapter } from '@reown/appkit-adapter-wagmi';
+import { base, baseSepolia } from '@reown/appkit/networks';
+
+// Get projectId from https://cloud.reown.com
+const projectId = process.env.NEXT_PUBLIC_REOWN_PROJECT_ID || '';
+
+// Create wagmi adapter
+const networks = [base, baseSepolia];
+
+export const wagmiAdapter = new WagmiAdapter({
+  networks,
+  projectId,
   ssr: true,
 });
 
-// Export as wagmiConfig for compatibility
-export const wagmiConfig = config;
+// Export config for backward compatibility
+export const config = wagmiAdapter.wagmiConfig;
+export const wagmiConfig = wagmiAdapter.wagmiConfig;
 
 declare module 'wagmi' {
   interface Register {

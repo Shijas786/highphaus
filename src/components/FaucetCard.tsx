@@ -11,8 +11,7 @@ import { CLAIM_AMOUNT_USD } from '@/config/constants';
 import { useFarcaster } from './FarcasterProvider';
 import { useGaslessClaim } from '@/hooks/use-gasless-claim';
 import { useClaimStatus } from '@/hooks/use-claim-status';
-import { useConnect, useAccount } from 'wagmi';
-import { injected } from 'wagmi/connectors';
+import { useAccount } from 'wagmi';
 
 interface FaucetCardProps {
   onClaimSuccess?: () => void;
@@ -25,7 +24,6 @@ export function FaucetCard({ onClaimSuccess }: FaucetCardProps = {}) {
 
   // Wagmi hooks
   const { address, isConnected } = useAccount();
-  const { connect } = useConnect();
 
   // Gasless claim hook
   const { claim, isLoading, txHash, isConfirmed } = useGaslessClaim();
@@ -62,15 +60,10 @@ export function FaucetCard({ onClaimSuccess }: FaucetCardProps = {}) {
     }
   }, [isConfirmed, refetchStatus, onClaimSuccess]);
 
-  const handleConnect = () => {
-    connect({ connector: injected() });
-  };
-
   const handleClaim = async () => {
-    if (!isConnected) {
-      handleConnect();
-      return;
-    }
+    // If not connected, the button will be replaced with AppKit connect button
+    if (!isConnected) return;
+    
     await claim();
   };
 
@@ -293,31 +286,31 @@ export function FaucetCard({ onClaimSuccess }: FaucetCardProps = {}) {
           </div>
 
           {/* Connect/Claim Button */}
-          <Button
-            variant="glow"
-            size="xl"
-            className="w-full"
-            onClick={handleClaim}
-            disabled={!status.canClaim && isConnected}
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="w-5 h-5 animate-spin" />
-                <span>Processing...</span>
-              </>
-            ) : (
-              <>
-                <Droplet className="w-5 h-5" />
-                <span>
-                  {!isConnected
-                    ? isMiniapp && farcasterUser
-                      ? `Connect Wallet (Farcaster #${farcasterUser.fid})`
-                      : 'Connect Wallet'
-                    : `Claim $${CLAIM_AMOUNT_USD.toFixed(2)} ETH`}
-                </span>
-              </>
-            )}
-          </Button>
+          {!isConnected ? (
+            <div className="w-full">
+              <appkit-button size="lg" />
+            </div>
+          ) : (
+            <Button
+              variant="glow"
+              size="xl"
+              className="w-full"
+              onClick={handleClaim}
+              disabled={!status.canClaim}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Processing...</span>
+                </>
+              ) : (
+                <>
+                  <Droplet className="w-5 h-5" />
+                  <span>Claim $${CLAIM_AMOUNT_USD.toFixed(2)} ETH</span>
+                </>
+              )}
+            </Button>
+          )}
 
           {/* Transaction Link */}
           {txHash && (
