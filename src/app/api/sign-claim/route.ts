@@ -3,6 +3,8 @@ import { Wallet, ethers } from 'ethers';
 
 const CHAIN_ID = 8453; // Base Mainnet by default
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
