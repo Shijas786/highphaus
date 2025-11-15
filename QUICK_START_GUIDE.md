@@ -49,10 +49,10 @@ Create `.env.local` file:
 # Reown AppKit (get from cloud.reown.com)
 NEXT_PUBLIC_REOWN_PROJECT_ID=your_reown_project_id
 
-# Your deployed contract address from step 1
-NEXT_PUBLIC_CONTRACT_ADDRESS=0xYourContractAddressHere
+# Your deployed contract address (Base Mainnet)
+NEXT_PUBLIC_CONTRACT_ADDRESS=0xBcA9D185EdAfa864C1d13Bc8Eecd048697CC72d
 
-# Server wallet private key (for gasless transactions)
+# Server wallet private key (Reown attestor)
 FAUCET_PRIVATE_KEY=0xYourServerWalletPrivateKeyHere
 
 # RPC URLs (default is fine)

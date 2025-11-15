@@ -84,7 +84,9 @@ contract HighPhausFaucetDynamic is Ownable {
         require(block.timestamp >= lastW + CLAIM_INTERVAL, "Wallet claimed");
 
         uint256 chainId;
-        assembly { chainId := chainid() }
+        assembly {
+            chainId := chainid()
+        }
 
         bytes32 payloadHash = keccak256(abi.encodePacked(farcasterIdHash, msg.sender, expiry, chainId, address(this)));
         bytes32 ethSigned = payloadHash.toEthSignedMessageHash();

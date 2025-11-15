@@ -1,6 +1,6 @@
 # 🏠 Highp Haus Faucet
 
-A modern Base network faucet with Farcaster authentication and USDC donations.
+Modern Base Mainnet faucet with Farcaster verification, Reown AppKit wallet support, and transparent ETH contributions.
 
 ## 🚀 Quick Start
 
@@ -13,17 +13,18 @@ Open [http://localhost:3000](http://localhost:3000)
 
 ## 📋 Features
 
-- ✅ **Privy Authentication** - Farcaster login
-- ✅ **Farcaster FID Claiming** - One claim per Farcaster account (on-chain verification)
-- ✅ **One-time Claims** - Each Farcaster ID claims once
-- ✅ **Dynamic Pricing** - Chainlink ETH/USD oracle ($0.10 worth of ETH)
+- ✅ **Reown AppKit** – 300+ wallets (MetaMask, Coinbase, Rainbow, etc.)
+- ✅ **Farcaster Verification** – Only verified Farcaster IDs can claim
+- ✅ **Recurring Claims** – $0.10 worth of ETH every 7 days
+- ✅ **Chainlink Oracle** – Dynamic price feed for accurate payouts
+- ✅ **ETH Contributions** – Support builders, tracked on-chain
+- ✅ **Server Attestation** – Reown signature from trusted attestor wallet
 
-## 🔗 Deployed Contract
+## 🔗 Current Deployment
 
-**BaseFarcasterFaucet**  
-Address: `0x527585EE01F9a86B895b98Fb59E14d8C943cF6db`  
-Network: Base Sepolia  
-Explorer: https://sepolia.basescan.org/address/0x527585EE01F9a86B895b98Fb59E14d8C943cF6db
+**HighPhausFaucetDynamic (Base Mainnet)**  
+Address: `0xBcA9D185EdAfa8649C1d13Bc8Eecd048697CC72d`  
+Explorer: https://basescan.org/address/0xBcA9D185EdAfa8649C1d13Bc8Eecd048697CC72d
 
 ## 🛠️ Tech Stack
 
@@ -60,9 +61,9 @@ Create `.env.local` with:
 NEXT_PUBLIC_REOWN_PROJECT_ID=your_reown_project_id
 
 # Contract Configuration
-NEXT_PUBLIC_CONTRACT_ADDRESS=0xYourContractAddress
+NEXT_PUBLIC_CONTRACT_ADDRESS=0xBcA9D185EdAfa8649C1d13Bc8Eecd048697CC72d
 
-# Server Wallet
+# Server Wallet (attestor key – must match trustedAttestor)
 FAUCET_PRIVATE_KEY=0xYourServerWalletPrivateKey
 
 # RPC URLs
@@ -70,19 +71,25 @@ BASE_RPC_URL=https://mainnet.base.org
 NEXT_PUBLIC_BASE_RPC=https://mainnet.base.org
 ```
 
-See `DEPLOYMENT_INSTRUCTIONS.md` and `QUICK_START_GUIDE.md` for full setup.
+See `CONTRACT_DEPLOYMENT_GUIDE.md`, `HOW_IT_WORKS.md`, and `REOWN_APPKIT_SETUP.md` for full setup details.
 
 ## 📚 Documentation
 
-- **FARCASTER_ONLY_SETUP.md** - Current setup guide (Farcaster authentication)
-- **DEPLOYED_CONTRACT_INFO.md** - Contract details & admin functions
+- **HOW_IT_WORKS.md** – Attestation + claim flow
+- **CONTRACT_DEPLOYMENT_GUIDE.md** – Deploying the faucet contract
+- **REOWN_APPKIT_SETUP.md** – Wallet integration + theming
+- **DEPLOYMENT_INSTRUCTIONS.md** – Frontend + environment setup
+- **QUICK_START_GUIDE.md** – TL;DR runbook
+- **FINAL_CLEANUP_SUMMARY.md** – What was removed & why
 
 ## 🎯 How It Works
 
-1. **Connect** - Users connect with Privy Farcaster login
-2. **Verify** - Contract checks Farcaster FID on-chain via ID Registry
-3. **Claim** - User receives $0.10 worth of ETH (one-time per FID)
-4. **Done** - Each Farcaster ID can only claim once!
+1. **Connect Wallet** – Reown AppKit modal (MetaMask, Coinbase, Rainbow…)
+2. **Authenticate** – Farcaster quick auth (FID extracted)
+3. **Request Signature** – Backend verifies cooldown + signs claim payload
+4. **Submit Transaction** – User calls `claim(farcasterIdHash, expiry, signature)` (user pays gas)
+5. **Receive $0.10 ETH** – Amount calculated at runtime via Chainlink oracle
+6. **Support Builders** – Anyone can contribute ETH via `contribute()` (tracked on-chain)
 
 ## 🧪 Development
 

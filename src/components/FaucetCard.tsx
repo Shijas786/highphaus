@@ -142,46 +142,36 @@ export function FaucetCard() {
         />
 
         <div className="relative z-10 p-8 space-y-6">
-          {/* Animated Droplet */}
+          {/* Animated Energy Core */}
           <motion.div
-            className="relative w-32 h-32 mx-auto"
-            animate={{ y: [0, -10, 0] }}
-            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+            className="relative w-40 h-40 mx-auto flex items-center justify-center"
+            animate={{ rotate: [0, 360] }}
+            transition={{ duration: 16, repeat: Infinity, ease: 'linear' }}
           >
-            {/* Water Fill Container */}
-            <div className="relative w-full h-full rounded-full border-4 border-baseBlue/50 overflow-hidden">
-              {/* Fill Animation */}
-              <motion.div
-                className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-baseBlue to-baseCyan"
-                initial={{ height: '0%' }}
-                animate={{ height: '50%' }}
-                transition={{ type: 'spring', stiffness: 50 }}
-              >
-                {/* Wave Effect */}
-                <motion.div
-                  className="absolute inset-0 bg-white/20"
-                  animate={{ x: ['-100%', '100%'] }}
-                  transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-                  style={{
-                    backgroundImage:
-                      'radial-gradient(circle, transparent 20%, rgba(255,255,255,0.3) 20%, rgba(255,255,255,0.3) 80%, transparent 80%)',
-                    backgroundSize: '50px 50px',
-                  }}
-                />
-              </motion.div>
-
-              {/* Droplet Icon */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <Droplet className="w-16 h-16 text-white/90 drop-shadow-lg" />
-              </div>
-            </div>
-
-            {/* Glow */}
             <motion.div
-              className="absolute inset-0 rounded-full bg-gradient-to-br from-baseBlue to-baseCyan blur-2xl -z-10"
-              animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
-              transition={{ duration: 2, repeat: Infinity }}
+              className="absolute inset-0 rounded-full border-4 border-baseBlue/40"
+              animate={{ rotate: [-360, 0] }}
+              transition={{ duration: 18, repeat: Infinity, ease: 'linear' }}
             />
+            <motion.div
+              className="absolute inset-4 rounded-full border-4 border-baseCyan/40 blur-sm"
+              animate={{ rotate: [0, 360] }}
+              transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
+            />
+            <motion.div
+              className="absolute inset-8 rounded-full blur-3xl"
+              style={{
+                background: 'conic-gradient(from 90deg, #00d4ff, #0052ff, #00d4ff)',
+                opacity: 0.4,
+              }}
+              animate={{ scale: [0.9, 1.1, 0.9] }}
+              transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+            />
+            <div
+              className="relative w-16 h-16 bg-black/80 rounded-lg flex items-center justify-center text-white font-black tracking-wider uppercase text-xs shadow-[0_0_25px_rgba(0,212,255,0.4)]"
+            >
+              FUEL
+            </div>
           </motion.div>
 
           {/* Info Section */}
@@ -298,13 +288,12 @@ export function FaucetCard() {
               ) : (
                 <>
                   <Droplet className="w-5 h-5" />
-                  <span>Claim $${CLAIM_AMOUNT_USD.toFixed(2)} ETH</span>
+                  <span>Claim ${CLAIM_AMOUNT_USD.toFixed(2)} ETH</span>
                 </>
               )}
             </Button>
           )}
 
-          {/* Transaction Link */}
           {txHash && (
             <motion.a
               href={`https://basescan.org/tx/${txHash}`}

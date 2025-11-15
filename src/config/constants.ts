@@ -5,7 +5,7 @@ export const IS_MOCK_MODE = process.env.NEXT_PUBLIC_MOCK_MODE === 'true';
 
 export const FAUCET_CONTRACT_ADDRESS =
   (process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as Address) ||
-  '0x0000000000000000000000000000000000000000';
+  ('0xBcA9D185EdAfa8649C1d13Bc8Eecd048697CC72d' as Address);
 
 // Reown AppKit Project ID
 export const REOWN_PROJECT_ID = process.env.NEXT_PUBLIC_REOWN_PROJECT_ID || '';
