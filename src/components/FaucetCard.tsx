@@ -17,7 +17,7 @@ export function FaucetCard() {
   // -------------------------
   const [mounted, setMounted] = useState(false);
   const { data: ethPrice } = useEthPrice();
-  const { user: farcasterUser, isMiniapp } = useFarcaster();
+  const { user: farcasterUser } = useFarcaster();
   const { address, isConnected } = useAccount();
   const { data: claimStatus, refetch: refetchStatus } = useClaimStatus();
   const { claim, isLoading, txHash, isConfirmed } = useGaslessClaim();
