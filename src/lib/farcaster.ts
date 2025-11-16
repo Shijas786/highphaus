@@ -16,6 +16,7 @@ export interface FarcasterContext {
   user?: FarcasterUser;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let sdkInstance: any = null;
 let isInitialized = false;
 
@@ -29,10 +30,11 @@ export function isFarcasterMiniapp(): boolean {
   const isInIframe = window.parent !== window;
 
   // Additional checks for Farcaster-specific context
-  const hasFarcasterIndicators =
-    window.location.href.includes('farcaster') ||
-    window.location.href.includes('warpcast') ||
-    (window as any).__FARCASTER__ === true;
+    const hasFarcasterIndicators =
+      window.location.href.includes('farcaster') ||
+      window.location.href.includes('warpcast') ||
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (window as any).__FARCASTER__ === true;
 
   return isInIframe || hasFarcasterIndicators;
 }
@@ -98,6 +100,7 @@ export async function getFarcasterUser(): Promise<FarcasterUser | null> {
  * Get Farcaster user from Privy
  * Useful when user logs in via Privy's Farcaster integration
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function getFarcasterUserFromPrivy(privyUser: any): FarcasterUser | null {
   if (!privyUser?.farcaster) return null;
 

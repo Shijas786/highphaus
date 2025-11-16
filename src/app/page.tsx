@@ -18,9 +18,9 @@ export default function Home() {
   }, []);
 
   // Safely get stats with error handling
-  const { data: stats, error: statsError } = useStats();
+  const { data: stats } = useStats();
   // Safely get ETH price with error handling
-  const { data: ethPrice, error: ethPriceError } = useEthPrice();
+  const { data: ethPrice } = useEthPrice();
   const [activeTab, setActiveTab] = useState('claim');
 
   // Calculate ETH amount from USD with fallback
