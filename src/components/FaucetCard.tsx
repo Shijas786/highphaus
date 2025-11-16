@@ -14,12 +14,30 @@ import { useClaimStatus } from '@/hooks/use-claim-status';
 import { useAccount } from 'wagmi';
 
 export function FaucetCard() {
+  const [mounted, setMounted] = useState(false);
+  
+  // Wait for client-side hydration before rendering wallet-dependent UI (critical for Farcaster webview)
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // CRITICAL: Block SSR and prevent hydration crashes in Farcaster webview
+  if (!mounted) {
+    return (
+      <div className="w-full h-screen bg-black flex items-center justify-center text-gray-300">
+        Loading...
+      </div>
+    );
+  }
+
   const { data: ethPrice } = useEthPrice();
   const { user: farcasterUser, isMiniapp } = useFarcaster();
-  const { data: claimStatus, refetch: refetchStatus } = useClaimStatus();
-
-  // Wagmi hooks
+  
+  // Wagmi hooks - safe to call, will return defaults if WagmiProvider not ready
   const { address, isConnected } = useAccount();
+  
+  // Only enable claim status when mounted and we have required data
+  const { data: claimStatus, refetch: refetchStatus } = useClaimStatus();
 
   // Gasless claim hook
   const { claim, isLoading, txHash, isConfirmed } = useGaslessClaim();
@@ -118,10 +136,11 @@ export function FaucetCard() {
 
   return (
     <div className="relative w-full max-w-md mx-auto">
-      {showConfetti && (
+      {/* Confetti - only show when mounted and not in mini-app (avoids GPU crash) */}
+      {mounted && !isMiniapp && showConfetti && (
         <Confetti
-          width={window.innerWidth}
-          height={window.innerHeight}
+          width={typeof window !== 'undefined' ? window.innerWidth : 300}
+          height={typeof window !== 'undefined' ? window.innerHeight : 300}
           recycle={false}
           numberOfPieces={500}
           gravity={0.3}
@@ -129,44 +148,51 @@ export function FaucetCard() {
       )}
 
       <motion.div
-        className="relative overflow-hidden rounded-3xl border border-baseBlue/30 bg-darkBg/70 backdrop-blur-2xl shadow-2xl"
+        className={`relative overflow-hidden rounded-3xl border border-baseBlue/30 bg-darkBg/70 shadow-2xl ${
+          isMiniapp ? '' : 'backdrop-blur-2xl'
+        }`}
         initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ type: 'spring', stiffness: 100 }}
+        animate={isMiniapp ? {} : { opacity: 1, scale: 1 }}
+        transition={isMiniapp ? {} : { type: 'spring', stiffness: 100 }}
       >
-        {/* Animated Glow */}
-        <motion.div
-          className="absolute -inset-1 bg-gradient-to-r from-baseBlue to-baseCyan opacity-20 blur-xl"
-          animate={{ opacity: [0.2, 0.4, 0.2] }}
-          transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-        />
+        {/* Animated Glow - disabled in mini-app to avoid GPU crash */}
+        {!isMiniapp && (
+          <motion.div
+            className="absolute -inset-1 bg-gradient-to-r from-baseBlue to-baseCyan opacity-20 blur-xl"
+            animate={{ opacity: [0.2, 0.4, 0.2] }}
+            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+          />
+        )}
 
         <div className="relative z-10 p-8 space-y-6">
-          {/* Animated Energy Core */}
+          {/* Animated Energy Core - disable heavy animations in mini-app */}
           <motion.div
             className="relative w-40 h-40 mx-auto flex items-center justify-center"
-            animate={{ rotate: [0, 360] }}
-            transition={{ duration: 16, repeat: Infinity, ease: 'linear' }}
+            animate={isMiniapp ? {} : { rotate: [0, 360] }}
+            transition={isMiniapp ? {} : { duration: 16, repeat: Infinity, ease: 'linear' }}
           >
             <motion.div
               className="absolute inset-0 rounded-full border-4 border-baseBlue/40"
-              animate={{ rotate: [-360, 0] }}
-              transition={{ duration: 18, repeat: Infinity, ease: 'linear' }}
+              animate={isMiniapp ? {} : { rotate: [-360, 0] }}
+              transition={isMiniapp ? {} : { duration: 18, repeat: Infinity, ease: 'linear' }}
             />
             <motion.div
               className="absolute inset-4 rounded-full border-4 border-baseCyan/40 blur-sm"
-              animate={{ rotate: [0, 360] }}
-              transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
+              animate={isMiniapp ? {} : { rotate: [0, 360] }}
+              transition={isMiniapp ? {} : { duration: 10, repeat: Infinity, ease: 'linear' }}
             />
-            <motion.div
-              className="absolute inset-8 rounded-full blur-3xl"
-              style={{
-                background: 'conic-gradient(from 90deg, #00d4ff, #0052ff, #00d4ff)',
-                opacity: 0.4,
-              }}
-              animate={{ scale: [0.9, 1.1, 0.9] }}
-              transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-            />
+            {/* CRITICAL: Disable conic-gradient in mini-app to avoid GPU crash */}
+            {!isMiniapp && (
+              <motion.div
+                className="absolute inset-8 rounded-full blur-3xl"
+                style={{
+                  background: 'conic-gradient(from 90deg, #00d4ff, #0052ff, #00d4ff)',
+                  opacity: 0.4,
+                }}
+                animate={{ scale: [0.9, 1.1, 0.9] }}
+                transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+              />
+            )}
             <div
               className="relative w-16 h-16 bg-black/80 rounded-lg flex items-center justify-center text-white font-black tracking-wider uppercase text-xs shadow-[0_0_25px_rgba(0,212,255,0.4)]"
             >
@@ -270,7 +296,8 @@ export function FaucetCard() {
           {/* Connect/Claim Button */}
           {!isConnected ? (
             <div className="w-full">
-              <appkit-button size="lg" />
+              {/* Only show appkit-button when mounted (SSR compatibility) */}
+              {mounted && <appkit-button size="lg" />}
             </div>
           ) : (
             <Button
