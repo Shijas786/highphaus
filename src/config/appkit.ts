@@ -10,7 +10,7 @@ if (!projectId) {
 }
 
 // Networks configuration
-const networks = [base, baseSepolia] as const;
+const networks = [base, baseSepolia];
 
 // Create WagmiAdapter with SSR support
 export const wagmiAdapter = new WagmiAdapter({
