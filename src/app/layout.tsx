@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { Providers } from '@/components/providers';
+import ClientBodyFix from '@/components/ClientBodyFix';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -34,6 +35,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <head>
+        <meta name="color-scheme" content="light dark" />
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link
           href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
@@ -57,6 +59,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         }} />
       </head>
       <body className={inter.className} style={{ background: '#FFFFFF', color: '#000000', margin: 0, padding: 0 }}>
+        <ClientBodyFix />
         <noscript>
           <div style={{ padding: '20px', textAlign: 'center', background: '#FFFFFF', color: '#000000' }}>
             <h1>JavaScript Required</h1>
