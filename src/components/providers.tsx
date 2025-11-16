@@ -1,7 +1,7 @@
 'use client';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactNode, useState, useEffect } from 'react';
+import { ReactNode, useState } from 'react';
 import { Toaster } from 'sonner';
 import { WagmiProviderWrapper } from './WagmiProviderWrapper';
 import { FarcasterProvider } from './FarcasterProvider';
@@ -22,18 +22,6 @@ export function Providers({ children }: { children: ReactNode }) {
         },
       })
   );
-
-  // Ensure we're on client side
-  const [mounted, setMounted] = useState(false);
-  
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // If not mounted, render children directly (for SSR)
-  if (!mounted) {
-    return <>{children}</>;
-  }
 
   try {
     return (
@@ -59,8 +47,12 @@ export function Providers({ children }: { children: ReactNode }) {
       </ErrorBoundary>
     );
   } catch (error) {
-    // If providers fail, still render children
+    // If providers fail, still render children with QueryClient at minimum
     console.error('Provider initialization error:', error);
-    return <>{children}</>;
+    return (
+      <QueryClientProvider client={queryClient}>
+        {children}
+      </QueryClientProvider>
+    );
   }
 }
