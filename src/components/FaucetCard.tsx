@@ -14,14 +14,22 @@ import { useClaimStatus } from '@/hooks/use-claim-status';
 import { useAccount } from 'wagmi';
 
 export function FaucetCard() {
+  // Hooks MUST be here at the top, always executed in the same order
   const [mounted, setMounted] = useState(false);
-  
-  // Wait for client-side hydration before rendering wallet-dependent UI (critical for Farcaster webview)
+  const { data: ethPrice } = useEthPrice();
+  const { user: farcasterUser, isMiniapp } = useFarcaster();
+  const { address, isConnected } = useAccount();
+  const { data: claimStatus, refetch: refetchStatus } = useClaimStatus();
+  const { claim, isLoading, txHash, isConfirmed } = useGaslessClaim();
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [countdown, setCountdown] = useState({ hours: 0, minutes: 0, seconds: 0 });
+
+  // Now we can safely run effects
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // CRITICAL: Block SSR and prevent hydration crashes in Farcaster webview
+  // Miniapp-safe early return AFTER hooks
   if (!mounted) {
     return (
       <div className="w-full h-screen bg-black flex items-center justify-center text-gray-300">
@@ -29,21 +37,6 @@ export function FaucetCard() {
       </div>
     );
   }
-
-  const { data: ethPrice } = useEthPrice();
-  const { user: farcasterUser, isMiniapp } = useFarcaster();
-  
-  // Wagmi hooks - safe to call, will return defaults if WagmiProvider not ready
-  const { address, isConnected } = useAccount();
-  
-  // Only enable claim status when mounted and we have required data
-  const { data: claimStatus, refetch: refetchStatus } = useClaimStatus();
-
-  // Gasless claim hook
-  const { claim, isLoading, txHash, isConfirmed } = useGaslessClaim();
-
-  const [showConfetti, setShowConfetti] = useState(false);
-  const [countdown, setCountdown] = useState({ hours: 0, minutes: 0, seconds: 0 });
 
   // Update countdown timer
   useEffect(() => {
