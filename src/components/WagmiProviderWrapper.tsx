@@ -85,10 +85,11 @@ export function WagmiProviderWrapper({ children }: { children: ReactNode }) {
     // Small delay to ensure window is ready (especially for Farcaster webview)
     if (document.readyState === 'complete') {
       init();
-    } else {
-      window.addEventListener('load', init);
-      return () => window.removeEventListener('load', init);
+      return;
     }
+    
+    window.addEventListener('load', init);
+    return () => window.removeEventListener('load', init);
   }, []);
 
   // During SSR or before mount, just provide QueryClient
