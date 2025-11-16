@@ -17,68 +17,60 @@ if (!projectId) {
 // Create QueryClient
 const queryClient = new QueryClient();
 
-// Setup wagmi adapter - lazy initialization for Farcaster webview compatibility
-let wagmiAdapter: WagmiAdapter | null = null;
+// Setup wagmi adapter - initialize synchronously for SSR, but delay AppKit initialization
+const networks = [base, baseSepolia];
+
+// Initialize adapter synchronously (supports SSR with ssr: true)
+const wagmiAdapter = new WagmiAdapter({
+  networks,
+  projectId,
+  ssr: true,
+});
+
+// Track AppKit initialization separately (only on client)
 let appKitInitialized = false;
 
-function initializeWagmi() {
-  if (typeof window === 'undefined') return null; // Skip SSR
-  if (wagmiAdapter) return wagmiAdapter; // Already initialized
+function initializeAppKit() {
+  if (typeof window === 'undefined') return; // Skip SSR
+  if (appKitInitialized) return; // Already initialized
 
   try {
-    const networks = [base, baseSepolia];
-    
-    wagmiAdapter = new WagmiAdapter({
-      networks,
+    // Initialize AppKit only on client side (critical for Farcaster webview)
+    createAppKit({
+      adapters: [wagmiAdapter],
+      networks: [base, baseSepolia],
       projectId,
-      ssr: true,
+      metadata: {
+        name: 'HighpHaus Faucet',
+        description: 'Claim free ETH on Base Network with Farcaster',
+        url: 'https://highphaus.vercel.app',
+        icons: ['https://highphaus.vercel.app/icon.png'],
+      },
+      features: {
+        analytics: true,
+      },
+      themeMode: 'dark',
+      themeVariables: {
+        '--w3m-accent': '#0052FF',
+        '--w3m-border-radius-master': '4px',
+      },
     });
-
-    // Initialize AppKit only once and only on client
-    if (!appKitInitialized) {
-      createAppKit({
-        adapters: [wagmiAdapter],
-        networks: [base, baseSepolia],
-        projectId,
-        metadata: {
-          name: 'HighpHaus Faucet',
-          description: 'Claim free ETH on Base Network with Farcaster',
-          url: 'https://highphaus.vercel.app',
-          icons: ['https://highphaus.vercel.app/icon.png'],
-        },
-        features: {
-          analytics: true,
-        },
-        themeMode: 'dark',
-        themeVariables: {
-          '--w3m-accent': '#0052FF',
-          '--w3m-border-radius-master': '4px',
-        },
-      });
-      appKitInitialized = true;
-    }
-
-    return wagmiAdapter;
+    appKitInitialized = true;
   } catch (error) {
-    console.error('Failed to initialize Wagmi:', error);
-    return null;
+    console.error('Failed to initialize AppKit:', error);
   }
 }
 
 export function WagmiProviderWrapper({ children }: { children: ReactNode }) {
   const [mounted, setMounted] = useState(false);
-  const [adapter, setAdapter] = useState<WagmiAdapter | null>(null);
 
-  // Initialize wallet providers after hydration (critical for Farcaster webview)
+  // Initialize AppKit after hydration (critical for Farcaster webview)
   useEffect(() => {
     if (typeof window === 'undefined') return;
     
     // Wait for window to be fully available
     const init = () => {
-      const initializedAdapter = initializeWagmi();
-      if (initializedAdapter) {
-        setAdapter(initializedAdapter);
-      }
+      initializeAppKit();
       setMounted(true);
     };
 
@@ -92,17 +84,11 @@ export function WagmiProviderWrapper({ children }: { children: ReactNode }) {
     return () => window.removeEventListener('load', init);
   }, []);
 
-  // During SSR or before mount, just provide QueryClient
-  if (!mounted || !adapter) {
-    return (
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-    );
-  }
-
+  // Always provide WagmiProvider during SSR and client (adapter supports SSR)
+  // Only AppKit initialization is delayed for Farcaster webview compatibility
   try {
-    // Wagmi supports SSR with ssr: true, so always provide WagmiProvider
     return (
-      <WagmiProvider config={adapter.wagmiConfig}>
+      <WagmiProvider config={wagmiAdapter.wagmiConfig}>
         <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
       </WagmiProvider>
     );
