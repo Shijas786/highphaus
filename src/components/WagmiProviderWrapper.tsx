@@ -2,7 +2,7 @@
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WagmiProvider } from 'wagmi';
-import { ReactNode, useState, useEffect } from 'react';
+import { ReactNode, useEffect } from 'react';
 import { wagmiConfig, initializeAppKit } from '@/config/appkit';
 
 // Create QueryClient
@@ -18,8 +18,6 @@ const queryClient = new QueryClient({
 });
 
 export function WagmiProviderWrapper({ children }: { children: ReactNode }) {
-  const [mounted, setMounted] = useState(false);
-
   // Initialize AppKit after hydration (critical for Farcaster webview)
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -27,7 +25,6 @@ export function WagmiProviderWrapper({ children }: { children: ReactNode }) {
     // Wait for window to be fully available
     const init = () => {
       initializeAppKit();
-      setMounted(true);
     };
 
     // Small delay to ensure window is ready (especially for Farcaster webview)
