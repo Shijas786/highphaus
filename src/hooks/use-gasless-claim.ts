@@ -3,6 +3,7 @@ import { useAccount, useWriteContract } from 'wagmi';
 import { useFarcaster } from '@/components/FarcasterProvider';
 import { toast } from 'sonner';
 import { parseAbi } from 'viem';
+import { BASE_URL } from '@/config/constants';
 
 const CLAIM_ABI = parseAbi([
   'function claim(bytes32 farcasterIdHash, uint256 expiry, bytes signature)',
@@ -45,7 +46,7 @@ export function useGaslessClaim() {
       // Step 1: Get attestation signature from server
       toast.info('Getting claim signature...');
       
-      const response = await fetch('/api/claim', {
+      const response = await fetch(`${BASE_URL}/api/claim`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

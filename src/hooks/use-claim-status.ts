@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useFarcaster } from '@/components/FarcasterProvider';
 import { useAccount } from 'wagmi';
+import { BASE_URL } from '@/config/constants';
 
 interface ClaimStatusData {
   canClaim: boolean;
@@ -19,7 +20,7 @@ interface ClaimStatusResponse {
 }
 
 async function fetchClaimStatus(fid: number, address: string): Promise<ClaimStatusData> {
-  const response = await fetch(`/api/claim-status?fid=${fid}&address=${address}`);
+  const response = await fetch(`${BASE_URL}/api/claim-status?fid=${fid}&address=${address}`);
   const result: ClaimStatusResponse = await response.json();
 
   if (!result.success || !result.data) {

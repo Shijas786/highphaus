@@ -3,6 +3,7 @@ import { useAccount, useWriteContract } from 'wagmi';
 import { parseEther } from 'viem';
 import { toast } from 'sonner';
 import { parseAbi } from 'viem';
+import { BASE_URL } from '@/config/constants';
 
 const CONTRIBUTE_ABI = parseAbi([
   'function contribute() payable',
@@ -51,7 +52,7 @@ export function useContribute() {
       toast.info('Waiting for confirmation...');
 
       // Log contribution on server
-      await fetch('/api/contribute', {
+      await fetch(`${BASE_URL}/api/contribute`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

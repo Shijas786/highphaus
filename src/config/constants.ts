@@ -18,6 +18,9 @@ export const COOLDOWN_PERIOD = 7 * 24 * 60 * 60; // 7 days in seconds
 
 export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
 
+// Base URL for API calls - use empty string for relative paths (works on same domain)
+export const BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
+
 // Chain configurations
 export const SUPPORTED_CHAINS = [base, baseSepolia];
 
