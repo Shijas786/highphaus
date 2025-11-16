@@ -194,10 +194,17 @@ export function FaucetCard() {
   };
 
   // EARLY RETURN AFTER ALL HOOKS (including useMemo)
+  // Minimal loading state - avoid blocking render on Warpcast mobile
   if (!mounted) {
     return (
-      <div className="w-full min-h-[100vh] bg-black flex items-center justify-center text-gray-300">
-        Loading...
+      <div 
+        className="w-full min-h-[400px] flex items-center justify-center"
+        style={{ background: '#FFFFFF', color: '#000000' }}
+      >
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2" style={{ color: '#0052FF' }} />
+          <p className="text-sm font-medium" style={{ color: '#666666' }}>Loading...</p>
+        </div>
       </div>
     );
   }
