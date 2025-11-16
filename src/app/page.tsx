@@ -10,13 +10,25 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Droplet, Heart } from 'lucide-react';
 
 export default function Home() {
-  const { data: stats } = useStats();
-  const { data: ethPrice } = useEthPrice();
+  // Safely get stats with error handling
+  const { data: stats, error: statsError } = useStats();
+  // Safely get ETH price with error handling
+  const { data: ethPrice, error: ethPriceError } = useEthPrice();
   const [activeTab, setActiveTab] = useState('claim');
 
-  // Calculate ETH amount from USD
+  // Calculate ETH amount from USD with fallback
   const claimAmountEth =
     ethPrice && ethPrice > 0 ? (CLAIM_AMOUNT_USD / ethPrice).toFixed(6) : '0.0000';
+  
+  // Safe fallback values
+  const safeEthPrice = ethPrice || 2500;
+  const safeStats = stats || {
+    totalClaimed: '0',
+    totalClaimants: 0,
+    lastClaimTime: 0,
+    claimsPerMinute: 0,
+    contractBalance: '0',
+  };
 
   return (
     <div className="min-h-screen" style={{ background: '#FFFFFF' }}>
@@ -117,7 +129,7 @@ export default function Home() {
           </h1>
 
           <p className="text-xl md:text-2xl font-bold mb-4" style={{ color: '#1a1a1a' }}>
-            ≈ {claimAmountEth} ETH (at ${ethPrice?.toLocaleString()}/ETH)
+            ≈ {claimAmountEth} ETH (at ${safeEthPrice.toLocaleString()}/ETH)
           </p>
 
           <p className="text-lg mb-12" style={{ color: '#666666' }}>
@@ -132,7 +144,7 @@ export default function Home() {
               color: '#0052FF',
             }}
           >
-            ETH PRICE: ${ethPrice ? ethPrice.toLocaleString() : '2,500'}
+            ETH PRICE: ${safeEthPrice.toLocaleString()}
           </div>
         </div>
       </section>
@@ -156,7 +168,7 @@ export default function Home() {
               DISTRIBUTED
             </div>
             <div className="text-5xl lg:text-7xl font-black mb-2" style={{ color: '#FFFFFF' }}>
-              ${stats ? (parseFloat(stats.totalClaimed) * (ethPrice || 2500)).toFixed(0) : '0'}
+              ${(parseFloat(safeStats.totalClaimed) * safeEthPrice).toFixed(0)}
             </div>
             <div className="text-sm font-black uppercase" style={{ color: '#0052FF' }}>
               USD VALUE
@@ -182,7 +194,7 @@ export default function Home() {
               COMMUNITY
             </div>
             <div className="text-5xl lg:text-7xl font-black mb-2" style={{ color: '#FFFFFF' }}>
-              {stats ? stats.totalClaimants.toLocaleString() : '0'}
+              {safeStats.totalClaimants.toLocaleString()}
             </div>
             <div className="text-sm font-black uppercase" style={{ color: '#000000' }}>
               USERS
@@ -209,7 +221,7 @@ export default function Home() {
               CONTRIBUTED
             </div>
             <div className="text-5xl lg:text-7xl font-black mb-2" style={{ color: '#FFFFFF' }}>
-              {stats ? (parseFloat(stats.totalClaimed) * 0.5).toFixed(2) : '0'}
+              {(parseFloat(safeStats.totalClaimed) * 0.5).toFixed(2)}
             </div>
             <div className="text-sm font-black uppercase" style={{ color: '#0052FF' }}>
               ETH
@@ -240,7 +252,7 @@ export default function Home() {
               className="text-5xl lg:text-7xl font-black mb-2 relative z-10"
               style={{ color: '#FFFFFF' }}
             >
-              {stats ? stats.contractBalance : '0'}
+              {safeStats.contractBalance}
             </div>
             <div
               className="text-sm font-black uppercase relative z-10"

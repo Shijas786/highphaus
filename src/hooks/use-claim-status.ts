@@ -39,5 +39,7 @@ export function useClaimStatus() {
     enabled: !!user?.fid && !!address,
     refetchInterval: 10000, // Refresh every 10 seconds
     staleTime: 5000,
+    retry: 1, // Only retry once
+    retryOnMount: false, // Don't retry on mount if initial query failed
   });
 }

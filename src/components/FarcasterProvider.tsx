@@ -28,20 +28,26 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
         setIsMiniapp(inMiniapp);
 
         if (inMiniapp) {
-          // Initialize SDK and get user context
-          const context = await initializeFarcasterSDK();
+          try {
+            // Initialize SDK and get user context
+            const context = await initializeFarcasterSDK();
 
-          if (context?.user) {
-            setUser({
-              fid: context.user.fid,
-              username: context.user.username,
-              displayName: context.user.displayName,
-              pfpUrl: context.user.pfpUrl,
-            });
+            if (context?.user) {
+              setUser({
+                fid: context.user.fid,
+                username: context.user.username,
+                displayName: context.user.displayName,
+                pfpUrl: context.user.pfpUrl,
+              });
+            }
+          } catch (sdkError) {
+            // SDK initialization failed - app should still work without Farcaster
+            console.warn('Farcaster SDK initialization failed (app will continue without it):', sdkError);
           }
         }
       } catch (error) {
-        console.error('Error loading Farcaster context:', error);
+        // Non-critical error - app should still render
+        console.warn('Error loading Farcaster context (app will continue):', error);
       } finally {
         setIsLoading(false);
       }

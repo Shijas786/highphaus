@@ -48,9 +48,20 @@ createAppKit({
 });
 
 export function WagmiProviderWrapper({ children }: { children: ReactNode }) {
-  return (
-    <WagmiProvider config={wagmiAdapter.wagmiConfig}>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-    </WagmiProvider>
-  );
+  // Ensure we're on the client side
+  if (typeof window === 'undefined') {
+    return <>{children}</>;
+  }
+
+  try {
+    return (
+      <WagmiProvider config={wagmiAdapter.wagmiConfig}>
+        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      </WagmiProvider>
+    );
+  } catch (error) {
+    console.error('WagmiProvider initialization error:', error);
+    // Still render children even if Wagmi fails
+    return <>{children}</>;
+  }
 }
