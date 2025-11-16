@@ -210,7 +210,7 @@ export function FaucetCard() {
 
       <motion.div
         className={`relative overflow-hidden rounded-3xl border border-baseBlue/30 bg-darkBg/70 shadow-2xl ${
-          isMiniapp ? '' : 'backdrop-blur-2xl'
+          safeMotion ? 'backdrop-blur-2xl' : ''
         }`}
         {...containerMotionProps}
       >
