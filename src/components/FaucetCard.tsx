@@ -39,6 +39,10 @@ export function FaucetCard() {
   const [showConfetti, setShowConfetti] = useState(false);
   const [countdown, setCountdown] = useState({ hours: 0, minutes: 0, seconds: 0 });
 
+  // Warpcast mobile detection - critical for preventing crashes
+  const isWarpcastMobile =
+    typeof window !== 'undefined' && /Warpcast/i.test(navigator.userAgent);
+
   // ALL EFFECTS → TOP ONLY
   useEffect(() => {
     setMounted(true);
@@ -119,61 +123,64 @@ export function FaucetCard() {
     };
   }, [isConnected, isLoading, isConfirmed, claimStatus, farcasterUser]);
 
+  // Safe motion flag - disable animations on mini-app and Warpcast mobile
+  const safeMotion = !isMiniapp && !isWarpcastMobile;
+
   // Memoize motion props to avoid conditional prop rendering
   const containerMotionProps = useMemo(() => {
-    return isMiniapp
-      ? { animate: undefined as any, transition: undefined as any }
-      : {
+    return safeMotion
+      ? {
           initial: { opacity: 0, scale: 0.9 },
           animate: { opacity: 1, scale: 1 },
           transition: { type: 'spring' as const, stiffness: 100 },
-        };
-  }, [isMiniapp]);
+        }
+      : { animate: undefined as any, transition: undefined as any };
+  }, [safeMotion]);
 
   const glowMotionProps = useMemo(() => {
-    return isMiniapp
-      ? { animate: undefined as any, transition: undefined as any }
-      : {
+    return safeMotion
+      ? {
           animate: { opacity: [0.2, 0.4, 0.2] },
           transition: { duration: 3, repeat: Infinity, ease: 'easeInOut' as const },
-        };
-  }, [isMiniapp]);
+        }
+      : { animate: undefined as any, transition: undefined as any };
+  }, [safeMotion]);
 
   const energyCoreMotionProps = useMemo(() => {
-    return isMiniapp
-      ? { animate: undefined as any, transition: undefined as any }
-      : {
+    return safeMotion
+      ? {
           animate: { rotate: [0, 360] },
           transition: { duration: 16, repeat: Infinity, ease: 'linear' as const },
-        };
-  }, [isMiniapp]);
+        }
+      : { animate: undefined as any, transition: undefined as any };
+  }, [safeMotion]);
 
   const innerRingMotionProps = useMemo(() => {
-    return isMiniapp
-      ? { animate: undefined as any, transition: undefined as any }
-      : {
+    return safeMotion
+      ? {
           animate: { rotate: [-360, 0] },
           transition: { duration: 18, repeat: Infinity, ease: 'linear' as const },
-        };
-  }, [isMiniapp]);
+        }
+      : { animate: undefined as any, transition: undefined as any };
+  }, [safeMotion]);
 
   const middleRingMotionProps = useMemo(() => {
-    return isMiniapp
-      ? { animate: undefined as any, transition: undefined as any }
-      : {
+    return safeMotion
+      ? {
           animate: { rotate: [0, 360] },
           transition: { duration: 10, repeat: Infinity, ease: 'linear' as const },
-        };
-  }, [isMiniapp]);
+        }
+      : { animate: undefined as any, transition: undefined as any };
+  }, [safeMotion]);
 
   const glowCoreMotionProps = useMemo(() => {
-    return isMiniapp
-      ? { animate: undefined as any, transition: undefined as any }
-      : {
+    return safeMotion
+      ? {
           animate: { scale: [0.9, 1.1, 0.9] },
           transition: { duration: 4, repeat: Infinity, ease: 'easeInOut' as const },
-        };
-  }, [isMiniapp]);
+        }
+      : { animate: undefined as any, transition: undefined as any };
+  }, [safeMotion]);
 
   // Calculate ETH amount from USD
   const claimAmountEth =
@@ -189,7 +196,7 @@ export function FaucetCard() {
   // EARLY RETURN AFTER ALL HOOKS (including useMemo)
   if (!mounted) {
     return (
-      <div className="w-full h-screen bg-black flex items-center justify-center text-gray-300">
+      <div className="w-full min-h-[100vh] bg-black flex items-center justify-center text-gray-300">
         Loading...
       </div>
     );
@@ -198,8 +205,8 @@ export function FaucetCard() {
   // NOW YOUR NORMAL JSX STARTS BELOW THIS
   return (
     <div className="relative w-full max-w-md mx-auto">
-      {/* Safe Confetti wrapper to avoid conditional hook rendering */}
-      <SafeConfetti show={mounted && !isMiniapp && showConfetti} />
+      {/* Safe Confetti wrapper - disabled on mini-app and Warpcast mobile */}
+      <SafeConfetti show={mounted && !isMiniapp && !isWarpcastMobile && showConfetti} />
 
       <motion.div
         className={`relative overflow-hidden rounded-3xl border border-baseBlue/30 bg-darkBg/70 shadow-2xl ${
@@ -207,8 +214,8 @@ export function FaucetCard() {
         }`}
         {...containerMotionProps}
       >
-        {/* Animated Glow - disabled in mini-app to avoid GPU crash */}
-        {!isMiniapp && (
+        {/* Animated Glow - disabled in mini-app and Warpcast mobile to avoid GPU crash */}
+        {safeMotion && (
           <motion.div
             className="absolute -inset-1 bg-gradient-to-r from-baseBlue to-baseCyan opacity-20 blur-xl"
             {...glowMotionProps}
@@ -216,21 +223,21 @@ export function FaucetCard() {
         )}
 
         <div className="relative z-10 p-8 space-y-6">
-          {/* Animated Energy Core - disable heavy animations in mini-app */}
+          {/* Animated Energy Core - disable heavy animations in mini-app and Warpcast mobile */}
           <motion.div
             className="relative w-40 h-40 mx-auto flex items-center justify-center"
-            {...energyCoreMotionProps}
+            {...(safeMotion ? energyCoreMotionProps : {})}
           >
             <motion.div
               className="absolute inset-0 rounded-full border-4 border-baseBlue/40"
-              {...innerRingMotionProps}
+              {...(safeMotion ? innerRingMotionProps : {})}
             />
             <motion.div
               className="absolute inset-4 rounded-full border-4 border-baseCyan/40 blur-sm"
-              {...middleRingMotionProps}
+              {...(safeMotion ? middleRingMotionProps : {})}
             />
-            {/* CRITICAL: Disable conic-gradient in mini-app to avoid GPU crash */}
-            {!isMiniapp && (
+            {/* CRITICAL: Disable conic-gradient in mini-app and Warpcast mobile to avoid GPU crash */}
+            {safeMotion && (
               <motion.div
                 className="absolute inset-8 rounded-full blur-3xl"
                 style={{
