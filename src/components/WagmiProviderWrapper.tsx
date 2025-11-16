@@ -48,12 +48,8 @@ createAppKit({
 });
 
 export function WagmiProviderWrapper({ children }: { children: ReactNode }) {
-  // Ensure we're on the client side
-  if (typeof window === 'undefined') {
-    return <>{children}</>;
-  }
-
   try {
+    // Wagmi supports SSR with ssr: true, so always provide WagmiProvider
     return (
       <WagmiProvider config={wagmiAdapter.wagmiConfig}>
         <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
@@ -61,7 +57,9 @@ export function WagmiProviderWrapper({ children }: { children: ReactNode }) {
     );
   } catch (error) {
     console.error('WagmiProvider initialization error:', error);
-    // Still render children even if Wagmi fails
-    return <>{children}</>;
+    // If Wagmi fails, still provide QueryClient at minimum
+    return (
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    );
   }
 }
