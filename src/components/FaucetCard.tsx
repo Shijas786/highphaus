@@ -6,12 +6,27 @@ import { formatAddress } from '@/lib/utils';
 import { Droplet, Loader2, CheckCircle2, Clock } from 'lucide-react';
 import { useEthPrice } from '@/hooks/use-eth-price';
 import Confetti from 'react-confetti';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { CLAIM_AMOUNT_USD } from '@/config/constants';
 import { useFarcaster } from './FarcasterProvider';
 import { useGaslessClaim } from '@/hooks/use-gasless-claim';
 import { useClaimStatus } from '@/hooks/use-claim-status';
 import { useAccount } from 'wagmi';
+
+// Safe Confetti wrapper to avoid conditional hook rendering
+function SafeConfetti({ show }: { show: boolean }) {
+  if (!show) return null;
+
+  return (
+    <Confetti
+      width={typeof window !== 'undefined' ? window.innerWidth : 300}
+      height={typeof window !== 'undefined' ? window.innerHeight : 300}
+      recycle={false}
+      numberOfPieces={500}
+      gravity={0.3}
+    />
+  );
+}
 
 export function FaucetCard() {
   // ALL HOOKS → TOP ONLY, ALWAYS RUN
@@ -60,43 +75,14 @@ export function FaucetCard() {
     }
   }, [isConfirmed, refetchStatus]);
 
-  // EARLY RETURN AFTER ALL HOOKS
-  if (!mounted) {
-    return (
-      <div className="w-full h-screen bg-black flex items-center justify-center text-gray-300">
-        Loading...
-      </div>
-    );
-  }
-
-  // NOW YOUR NORMAL JSX STARTS BELOW THIS
-
-  const handleClaim = async () => {
-    // If not connected, the button will be replaced with AppKit connect button
-    if (!isConnected) return;
-    
-    await claim();
-  };
-
-  // Calculate ETH amount from USD
-  const claimAmountEth =
-    ethPrice && ethPrice > 0 ? (CLAIM_AMOUNT_USD / ethPrice).toFixed(6) : '0.0000';
-
-  const getStatusContent = () => {
-    // If in Mini-App with Farcaster user
-    if (isMiniapp && farcasterUser) {
-      if (!isConnected) {
-        return {
-          message: `Connect wallet to claim (Farcaster #${farcasterUser.fid})`,
-          canClaim: false,
-          showCountdown: false,
-        };
-      }
-    }
-
+  // ALL useMemo HOOKS → MUST BE BEFORE EARLY RETURN
+  // Use useMemo for status to avoid conditional hook violations
+  const status = useMemo(() => {
     if (!isConnected) {
       return {
-        message: 'Connect wallet to claim',
+        message: farcasterUser
+          ? `Connect wallet to claim (Farcaster #${farcasterUser.fid})`
+          : 'Connect wallet to claim',
         canClaim: false,
         showCountdown: false,
       };
@@ -131,37 +117,101 @@ export function FaucetCard() {
       canClaim: true,
       showCountdown: false,
     };
+  }, [isConnected, isLoading, isConfirmed, claimStatus, farcasterUser]);
+
+  // Memoize motion props to avoid conditional prop rendering
+  const containerMotionProps = useMemo(() => {
+    return isMiniapp
+      ? { animate: undefined as any, transition: undefined as any }
+      : {
+          initial: { opacity: 0, scale: 0.9 },
+          animate: { opacity: 1, scale: 1 },
+          transition: { type: 'spring' as const, stiffness: 100 },
+        };
+  }, [isMiniapp]);
+
+  const glowMotionProps = useMemo(() => {
+    return isMiniapp
+      ? { animate: undefined as any, transition: undefined as any }
+      : {
+          animate: { opacity: [0.2, 0.4, 0.2] },
+          transition: { duration: 3, repeat: Infinity, ease: 'easeInOut' as const },
+        };
+  }, [isMiniapp]);
+
+  const energyCoreMotionProps = useMemo(() => {
+    return isMiniapp
+      ? { animate: undefined as any, transition: undefined as any }
+      : {
+          animate: { rotate: [0, 360] },
+          transition: { duration: 16, repeat: Infinity, ease: 'linear' as const },
+        };
+  }, [isMiniapp]);
+
+  const innerRingMotionProps = useMemo(() => {
+    return isMiniapp
+      ? { animate: undefined as any, transition: undefined as any }
+      : {
+          animate: { rotate: [-360, 0] },
+          transition: { duration: 18, repeat: Infinity, ease: 'linear' as const },
+        };
+  }, [isMiniapp]);
+
+  const middleRingMotionProps = useMemo(() => {
+    return isMiniapp
+      ? { animate: undefined as any, transition: undefined as any }
+      : {
+          animate: { rotate: [0, 360] },
+          transition: { duration: 10, repeat: Infinity, ease: 'linear' as const },
+        };
+  }, [isMiniapp]);
+
+  const glowCoreMotionProps = useMemo(() => {
+    return isMiniapp
+      ? { animate: undefined as any, transition: undefined as any }
+      : {
+          animate: { scale: [0.9, 1.1, 0.9] },
+          transition: { duration: 4, repeat: Infinity, ease: 'easeInOut' as const },
+        };
+  }, [isMiniapp]);
+
+  // Calculate ETH amount from USD
+  const claimAmountEth =
+    ethPrice && ethPrice > 0 ? (CLAIM_AMOUNT_USD / ethPrice).toFixed(6) : '0.0000';
+
+  const handleClaim = async () => {
+    // If not connected, the button will be replaced with AppKit connect button
+    if (!isConnected) return;
+    
+    await claim();
   };
 
-  const status = getStatusContent();
+  // EARLY RETURN AFTER ALL HOOKS (including useMemo)
+  if (!mounted) {
+    return (
+      <div className="w-full h-screen bg-black flex items-center justify-center text-gray-300">
+        Loading...
+      </div>
+    );
+  }
 
+  // NOW YOUR NORMAL JSX STARTS BELOW THIS
   return (
     <div className="relative w-full max-w-md mx-auto">
-      {/* Confetti - only show when mounted and not in mini-app (avoids GPU crash) */}
-      {mounted && !isMiniapp && showConfetti && (
-        <Confetti
-          width={typeof window !== 'undefined' ? window.innerWidth : 300}
-          height={typeof window !== 'undefined' ? window.innerHeight : 300}
-          recycle={false}
-          numberOfPieces={500}
-          gravity={0.3}
-        />
-      )}
+      {/* Safe Confetti wrapper to avoid conditional hook rendering */}
+      <SafeConfetti show={mounted && !isMiniapp && showConfetti} />
 
       <motion.div
         className={`relative overflow-hidden rounded-3xl border border-baseBlue/30 bg-darkBg/70 shadow-2xl ${
           isMiniapp ? '' : 'backdrop-blur-2xl'
         }`}
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={isMiniapp ? {} : { opacity: 1, scale: 1 }}
-        transition={isMiniapp ? {} : { type: 'spring', stiffness: 100 }}
+        {...containerMotionProps}
       >
         {/* Animated Glow - disabled in mini-app to avoid GPU crash */}
         {!isMiniapp && (
           <motion.div
             className="absolute -inset-1 bg-gradient-to-r from-baseBlue to-baseCyan opacity-20 blur-xl"
-            animate={{ opacity: [0.2, 0.4, 0.2] }}
-            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+            {...glowMotionProps}
           />
         )}
 
@@ -169,18 +219,15 @@ export function FaucetCard() {
           {/* Animated Energy Core - disable heavy animations in mini-app */}
           <motion.div
             className="relative w-40 h-40 mx-auto flex items-center justify-center"
-            animate={isMiniapp ? {} : { rotate: [0, 360] }}
-            transition={isMiniapp ? {} : { duration: 16, repeat: Infinity, ease: 'linear' }}
+            {...energyCoreMotionProps}
           >
             <motion.div
               className="absolute inset-0 rounded-full border-4 border-baseBlue/40"
-              animate={isMiniapp ? {} : { rotate: [-360, 0] }}
-              transition={isMiniapp ? {} : { duration: 18, repeat: Infinity, ease: 'linear' }}
+              {...innerRingMotionProps}
             />
             <motion.div
               className="absolute inset-4 rounded-full border-4 border-baseCyan/40 blur-sm"
-              animate={isMiniapp ? {} : { rotate: [0, 360] }}
-              transition={isMiniapp ? {} : { duration: 10, repeat: Infinity, ease: 'linear' }}
+              {...middleRingMotionProps}
             />
             {/* CRITICAL: Disable conic-gradient in mini-app to avoid GPU crash */}
             {!isMiniapp && (
@@ -190,8 +237,7 @@ export function FaucetCard() {
                   background: 'conic-gradient(from 90deg, #00d4ff, #0052ff, #00d4ff)',
                   opacity: 0.4,
                 }}
-                animate={{ scale: [0.9, 1.1, 0.9] }}
-                transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+                {...glowCoreMotionProps}
               />
             )}
             <div
