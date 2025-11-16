@@ -14,7 +14,7 @@ const networks = [base, baseSepolia];
 
 // Create WagmiAdapter with SSR support
 export const wagmiAdapter = new WagmiAdapter({
-  networks,
+  networks: networks as [typeof base, typeof baseSepolia],
   projectId,
   ssr: true,
 });
@@ -42,7 +42,7 @@ export function initializeAppKit() {
   try {
     createAppKit({
       adapters: [wagmiAdapter],
-      networks,
+      networks: networks as [typeof base, typeof baseSepolia],
       projectId,
       metadata: {
         name: 'HighpHaus Faucet',
