@@ -22,7 +22,12 @@ export const metadata: Metadata = {
     title: 'highphaus',
     description: 'Get $0.10 worth of ETH instantly. Contribute and earn OG NFT.',
   },
-  metadataBase: new URL(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_API_URL || 
+    (process.env.NODE_ENV === 'production' 
+      ? 'https://highp-haus.vercel.app' 
+      : 'http://localhost:3000')
+  ),
 };
 
 export const viewport: Viewport = {
