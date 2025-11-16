@@ -44,9 +44,21 @@ export function FaucetCard() {
     typeof window !== 'undefined' && /Warpcast/i.test(navigator.userAgent);
 
   // ALL EFFECTS → TOP ONLY
+  // Set mounted immediately on client - don't wait for next tick on Warpcast mobile
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    // Use requestAnimationFrame to ensure DOM is ready, but don't delay unnecessarily
+    if (typeof window !== 'undefined') {
+      // For Warpcast mobile, set immediately to avoid blank screen
+      if (isWarpcastMobile) {
+        setMounted(true);
+      } else {
+        // For other browsers, use RAF for smoother transition
+        requestAnimationFrame(() => {
+          setMounted(true);
+        });
+      }
+    }
+  }, [isWarpcastMobile]);
 
   useEffect(() => {
     if (!claimStatus?.secondsUntilClaim) return;
