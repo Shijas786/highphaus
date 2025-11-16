@@ -32,17 +32,23 @@ export function FaucetCard() {
   useEffect(() => {
     if (!claimStatus?.secondsUntilClaim) return;
 
-    const updateCountdown = () => {
-      const seconds = claimStatus.secondsUntilClaim;
-      setCountdown({
-        hours: Math.floor(seconds / 3600),
-        minutes: Math.floor((seconds % 3600) / 60),
-        seconds: seconds % 60,
-      });
-    };
+    const seconds = claimStatus.secondsUntilClaim;
 
-    updateCountdown();
-    const interval = setInterval(updateCountdown, 1000);
+    setCountdown({
+      hours: Math.floor(seconds / 3600),
+      minutes: Math.floor((seconds % 3600) / 60),
+      seconds: seconds % 60,
+    });
+
+    const interval = setInterval(() => {
+      const s = claimStatus.secondsUntilClaim;
+      setCountdown({
+        hours: Math.floor(s / 3600),
+        minutes: Math.floor((s % 3600) / 60),
+        seconds: s % 60,
+      });
+    }, 1000);
+
     return () => clearInterval(interval);
   }, [claimStatus?.secondsUntilClaim]);
 
