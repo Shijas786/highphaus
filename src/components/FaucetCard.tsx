@@ -14,7 +14,7 @@ import { useClaimStatus } from '@/hooks/use-claim-status';
 import { useAccount } from 'wagmi';
 
 export function FaucetCard() {
-  // Hooks MUST be here at the top, always executed in the same order
+  // ALL HOOKS → TOP ONLY, ALWAYS RUN
   const [mounted, setMounted] = useState(false);
   const { data: ethPrice } = useEthPrice();
   const { user: farcasterUser, isMiniapp } = useFarcaster();
@@ -24,30 +24,21 @@ export function FaucetCard() {
   const [showConfetti, setShowConfetti] = useState(false);
   const [countdown, setCountdown] = useState({ hours: 0, minutes: 0, seconds: 0 });
 
-  // Now we can safely run effects
+  // ALL EFFECTS → TOP ONLY
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Miniapp-safe early return AFTER hooks
-  if (!mounted) {
-    return (
-      <div className="w-full h-screen bg-black flex items-center justify-center text-gray-300">
-        Loading...
-      </div>
-    );
-  }
-
-  // Update countdown timer
   useEffect(() => {
     if (!claimStatus?.secondsUntilClaim) return;
 
     const updateCountdown = () => {
       const seconds = claimStatus.secondsUntilClaim;
-      const hours = Math.floor(seconds / 3600);
-      const minutes = Math.floor((seconds % 3600) / 60);
-      const secs = seconds % 60;
-      setCountdown({ hours, minutes, seconds: secs });
+      setCountdown({
+        hours: Math.floor(seconds / 3600),
+        minutes: Math.floor((seconds % 3600) / 60),
+        seconds: seconds % 60,
+      });
     };
 
     updateCountdown();
@@ -62,6 +53,17 @@ export function FaucetCard() {
       refetchStatus();
     }
   }, [isConfirmed, refetchStatus]);
+
+  // EARLY RETURN AFTER ALL HOOKS
+  if (!mounted) {
+    return (
+      <div className="w-full h-screen bg-black flex items-center justify-center text-gray-300">
+        Loading...
+      </div>
+    );
+  }
+
+  // NOW YOUR NORMAL JSX STARTS BELOW THIS
 
   const handleClaim = async () => {
     // If not connected, the button will be replaced with AppKit connect button
