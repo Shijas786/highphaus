@@ -32,14 +32,36 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en">
       <head>
         <link
           href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
           rel="stylesheet"
         />
+        <style dangerouslySetInnerHTML={{
+          __html: `
+            body {
+              margin: 0;
+              padding: 0;
+              background: #FFFFFF !important;
+              color: #000000 !important;
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+              -webkit-font-smoothing: antialiased;
+            }
+            #__next {
+              min-height: 100vh;
+              background: #FFFFFF;
+            }
+          `
+        }} />
       </head>
-      <body className={inter.className}>
+      <body className={inter.className} style={{ background: '#FFFFFF', color: '#000000', margin: 0, padding: 0 }}>
+        <noscript>
+          <div style={{ padding: '20px', textAlign: 'center', background: '#FFFFFF', color: '#000000' }}>
+            <h1>JavaScript Required</h1>
+            <p>Please enable JavaScript to use this application.</p>
+          </div>
+        </noscript>
         <Providers>{children}</Providers>
       </body>
     </html>

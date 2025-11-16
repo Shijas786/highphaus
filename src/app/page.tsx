@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FaucetCard } from '@/components/FaucetCard';
 import { ContributionCard } from '@/components/ContributionCard';
 import { useStats } from '@/hooks/use-stats';
@@ -10,6 +10,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Droplet, Heart } from 'lucide-react';
 
 export default function Home() {
+  const [mounted, setMounted] = useState(false);
+  
+  // Ensure component is mounted on client
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Safely get stats with error handling
   const { data: stats, error: statsError } = useStats();
   // Safely get ETH price with error handling
@@ -30,8 +37,27 @@ export default function Home() {
     contractBalance: '0',
   };
 
+  // Show basic content immediately even before React fully hydrates
+  if (!mounted) {
+    return (
+      <div style={{ 
+        minHeight: '100vh', 
+        background: '#FFFFFF', 
+        padding: '20px',
+        color: '#000000',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexDirection: 'column'
+      }}>
+        <div style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '10px' }}>highphaus</div>
+        <div style={{ fontSize: '14px', color: '#666' }}>Loading...</div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen" style={{ background: '#FFFFFF' }}>
+    <div className="min-h-screen" style={{ background: '#FFFFFF', color: '#000000' }}>
       {/* Athletic Header */}
       <header className="relative overflow-hidden" style={{ background: '#000000' }}>
         <div
