@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { FaucetContract, generateFarcasterIdHash } from '@/lib/faucet-contract';
 
-const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS!;
+const CONTRACT_ADDRESS =
+  process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || process.env.NEXT_PUBLIC_FAUCET_CONTRACT_ADDRESS;
 const RPC_URL = process.env.BASE_RPC_URL || 'https://mainnet.base.org';
 
 export const dynamic = 'force-dynamic';

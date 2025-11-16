@@ -2,9 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { FaucetContract, generateClaimSignature, generateFarcasterIdHash } from '@/lib/faucet-contract';
 import { z } from 'zod';
 
-const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS!;
+const CONTRACT_ADDRESS =
+  process.env.NEXT_PUBLIC_CONTRACT_ADDRESS ||
+  process.env.NEXT_PUBLIC_FAUCET_CONTRACT_ADDRESS;
 const RPC_URL = process.env.BASE_RPC_URL || 'https://mainnet.base.org';
-const ATTESTOR_PRIVATE_KEY = process.env.FAUCET_PRIVATE_KEY!;
+const ATTESTOR_PRIVATE_KEY = process.env.FAUCET_PRIVATE_KEY || process.env.ATTESTOR_PRIVATE_KEY;
 const CHAIN_ID = 8453; // Base Mainnet
 
 export const dynamic = 'force-dynamic';

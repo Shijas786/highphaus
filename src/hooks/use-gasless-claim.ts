@@ -72,7 +72,14 @@ export function useGaslessClaim() {
       // Step 2: User submits transaction (user pays gas)
       toast.info('Please confirm transaction in your wallet...');
 
-      const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`;
+      const contractAddress =
+        (process.env.NEXT_PUBLIC_CONTRACT_ADDRESS ||
+          process.env.NEXT_PUBLIC_FAUCET_CONTRACT_ADDRESS) as `0x${string}` | undefined;
+
+      if (!contractAddress) {
+        toast.error('Faucet contract address missing. Please contact support.');
+        return;
+      }
       
       const hash = await writeContractAsync({
         address: contractAddress,

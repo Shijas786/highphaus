@@ -28,7 +28,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid expiry value' }, { status: 400 });
     }
 
-    const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
+    const contractAddress =
+      process.env.NEXT_PUBLIC_CONTRACT_ADDRESS ||
+      process.env.NEXT_PUBLIC_FAUCET_CONTRACT_ADDRESS;
     if (!contractAddress) {
       console.error('NEXT_PUBLIC_CONTRACT_ADDRESS missing');
       return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
