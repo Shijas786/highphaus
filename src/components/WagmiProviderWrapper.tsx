@@ -1,65 +1,21 @@
 'use client';
 
-import { createAppKit } from '@reown/appkit/react';
-import { WagmiAdapter } from '@reown/appkit-adapter-wagmi';
-import { base, baseSepolia } from '@reown/appkit/networks';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WagmiProvider } from 'wagmi';
 import { ReactNode, useState, useEffect } from 'react';
-
-// Get projectId from https://cloud.reown.com
-const projectId = process.env.NEXT_PUBLIC_REOWN_PROJECT_ID || '';
-
-if (!projectId) {
-  console.warn('⚠️ NEXT_PUBLIC_REOWN_PROJECT_ID not set');
-}
+import { wagmiConfig, initializeAppKit } from '@/config/appkit';
 
 // Create QueryClient
-const queryClient = new QueryClient();
-
-// Setup wagmi adapter - initialize synchronously for SSR, but delay AppKit initialization
-const networks = [base, baseSepolia];
-
-// Initialize adapter synchronously (supports SSR with ssr: true)
-const wagmiAdapter = new WagmiAdapter({
-  networks,
-  projectId,
-  ssr: true,
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1,
+      staleTime: 5000,
+      throwOnError: false,
+    },
+  },
 });
-
-// Track AppKit initialization separately (only on client)
-let appKitInitialized = false;
-
-function initializeAppKit() {
-  if (typeof window === 'undefined') return; // Skip SSR
-  if (appKitInitialized) return; // Already initialized
-
-  try {
-    // Initialize AppKit only on client side (critical for Farcaster webview)
-    createAppKit({
-      adapters: [wagmiAdapter],
-      networks: [base, baseSepolia],
-      projectId,
-      metadata: {
-        name: 'HighpHaus Faucet',
-        description: 'Claim free ETH on Base Network with Farcaster',
-        url: 'https://highphaus.vercel.app',
-        icons: ['https://highphaus.vercel.app/icon.png'],
-      },
-      features: {
-        analytics: true,
-      },
-      themeMode: 'dark',
-      themeVariables: {
-        '--w3m-accent': '#0052FF',
-        '--w3m-border-radius-master': '4px',
-      },
-    });
-    appKitInitialized = true;
-  } catch (error) {
-    console.error('Failed to initialize AppKit:', error);
-  }
-}
 
 export function WagmiProviderWrapper({ children }: { children: ReactNode }) {
   const [mounted, setMounted] = useState(false);
@@ -88,7 +44,7 @@ export function WagmiProviderWrapper({ children }: { children: ReactNode }) {
   // Only AppKit initialization is delayed for Farcaster webview compatibility
   try {
     return (
-      <WagmiProvider config={wagmiAdapter.wagmiConfig}>
+      <WagmiProvider config={wagmiConfig}>
         <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
       </WagmiProvider>
     );
