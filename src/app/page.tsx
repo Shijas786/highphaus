@@ -4,6 +4,7 @@
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 export const fetchCache = 'force-no-store';
+// Removed runtime = 'edge' to avoid Vercel Edge Function size limit (1 MB)
 
 import { useState, useEffect } from 'react';
 import { FaucetCard } from '@/components/FaucetCard';

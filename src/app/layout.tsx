@@ -5,7 +5,7 @@ import { Providers } from '@/components/providers';
 import ClientBodyFix from '@/components/ClientBodyFix';
 
 export const dynamic = 'force-dynamic';
-export const runtime = 'edge';
+// Removed runtime = 'edge' to avoid Vercel Edge Function size limit (1 MB)
 
 const inter = Inter({ subsets: ['latin'] });
 
