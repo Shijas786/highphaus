@@ -3,8 +3,9 @@
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 export const fetchCache = 'force-no-store';
+export const runtime = 'edge';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FaucetCard } from '@/components/FaucetCard';
 import { ContributionCard } from '@/components/ContributionCard';
 import { useStats } from '@/hooks/use-stats';
@@ -14,6 +15,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Droplet, Heart } from 'lucide-react';
 
 export default function Home() {
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
   // Safely get stats with error handling
   const { data: stats } = useStats();
   // Safely get ETH price with error handling

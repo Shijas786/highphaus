@@ -4,6 +4,9 @@ import './globals.css';
 import { Providers } from '@/components/providers';
 import ClientBodyFix from '@/components/ClientBodyFix';
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'edge';
+
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
