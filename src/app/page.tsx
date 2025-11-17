@@ -1,5 +1,8 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 import { useState } from 'react';
 import { FaucetCard } from '@/components/FaucetCard';
 import { ContributionCard } from '@/components/ContributionCard';
@@ -8,10 +11,6 @@ import { useEthPrice } from '@/hooks/use-eth-price';
 import { CLAIM_AMOUNT_USD } from '@/config/constants';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Droplet, Heart } from 'lucide-react';
-
-// Disable prerendering - prevents SSR issues with wagmi hooks
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
 
 export default function Home() {
   // Safely get stats with error handling
