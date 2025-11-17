@@ -1,11 +1,15 @@
 'use client';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { WagmiProvider } from 'wagmi';
-import { ReactNode, useEffect } from 'react';
-import { wagmiConfig, initializeAppKit } from '@/config/appkit';
+import { WagmiProvider, type Config } from 'wagmi';
+import { ReactNode, useEffect, useState } from 'react';
 
-// Create QueryClient
+/**
+ * IMPORTANT:
+ * We DO NOT import wagmiConfig or AppKit at the top.
+ * They MUST be loaded inside useEffect or lazy-init to avoid Warpcast crashes.
+ */
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -18,38 +22,48 @@ const queryClient = new QueryClient({
 });
 
 export function WagmiProviderWrapper({ children }: { children: ReactNode }) {
-  // Initialize AppKit after hydration (critical for Farcaster webview)
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    
-    // Wait for window to be fully available
-    const init = () => {
-      initializeAppKit();
-    };
+  const [wagmiConfig, setWagmiConfig] = useState<Config | null>(null);
 
-    // Small delay to ensure window is ready (especially for Farcaster webview)
-    if (document.readyState === 'complete') {
-      init();
-      return;
+  useEffect(() => {
+    let cancelled = false;
+
+    async function init() {
+      try {
+        // Dynamically import ONLY on client
+        const appkit = await import('@/config/appkit');
+        
+        // Create wagmi config on client only (NOT on import)
+        const config = appkit.createWagmiConfig();
+
+        if (!cancelled) {
+          setWagmiConfig(config);
+
+          // Now safely initialize AppKit AFTER wagmi is set
+          appkit.initializeAppKit();
+        }
+      } catch (err) {
+        console.error('Wagmi/AppKit init failed:', err);
+      }
     }
-    
-    window.addEventListener('load', init);
-    return () => window.removeEventListener('load', init);
+
+    init();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  // Always provide WagmiProvider during SSR and client (adapter supports SSR)
-  // Only AppKit initialization is delayed for Farcaster webview compatibility
-  try {
+  // Before config loads → render minimal shell
+  if (!wagmiConfig) {
     return (
-      <WagmiProvider config={wagmiConfig}>
-        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-      </WagmiProvider>
-    );
-  } catch (error) {
-    console.error('WagmiProvider initialization error:', error);
-    // If Wagmi fails, still provide QueryClient at minimum
-    return (
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      <QueryClientProvider client={queryClient}>
+        {children}
+      </QueryClientProvider>
     );
   }
+
+  return (
+    <WagmiProvider config={wagmiConfig}>
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    </WagmiProvider>
+  );
 }

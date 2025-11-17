@@ -13,31 +13,41 @@ if (!projectId) {
 const networks = [base, baseSepolia];
 
 // Create WagmiAdapter with SSR support
-export const wagmiAdapter = new WagmiAdapter({
-  networks: networks as [typeof base, typeof baseSepolia],
-  projectId,
-  ssr: true,
-});
-
-// Get wagmi config
-export const wagmiConfig = wagmiAdapter.wagmiConfig;
-
-// Export config for backward compatibility
-export const config = wagmiConfig;
-
-// Wagmi type declaration
-declare module 'wagmi' {
-  interface Register {
-    config: typeof wagmiConfig;
-  }
-}
-
-// Create AppKit (initialize on client only)
+let wagmiAdapter: WagmiAdapter | null = null;
 let appKitInitialized = false;
 
+/**
+ * Create wagmi config on client only (NOT on import)
+ * This prevents Warpcast crashes from early wallet initialization
+ */
+export function createWagmiConfig() {
+  if (typeof window === 'undefined') {
+    throw new Error('createWagmiConfig must be called on client side only');
+  }
+
+  // Create adapter if not already created
+  if (!wagmiAdapter) {
+    wagmiAdapter = new WagmiAdapter({
+      networks: networks as [typeof base, typeof baseSepolia],
+      projectId,
+      ssr: false, // Client-side only
+    });
+  }
+
+  return wagmiAdapter.wagmiConfig;
+}
+
+/**
+ * Initialize AppKit AFTER wagmi config is ready
+ * This prevents Warpcast crashes from early wallet initialization
+ */
 export function initializeAppKit() {
   if (typeof window === 'undefined') return; // Skip SSR
   if (appKitInitialized) return; // Already initialized
+  if (!wagmiAdapter) {
+    console.warn('WagmiAdapter not initialized. Call createWagmiConfig() first.');
+    return;
+  }
 
   try {
     createAppKit({
@@ -47,8 +57,8 @@ export function initializeAppKit() {
       metadata: {
         name: 'HighpHaus Faucet',
         description: 'Claim free ETH on Base Network with Farcaster',
-        url: 'https://highphaus.vercel.app',
-        icons: ['https://highphaus.vercel.app/icon.png'],
+        url: 'https://highp-haus.vercel.app',
+        icons: ['https://highp-haus.vercel.app/icon.png'],
       },
       features: {
         analytics: true,
@@ -68,3 +78,9 @@ export function initializeAppKit() {
 // Export networks for convenience
 export { networks };
 
+// Wagmi type declaration
+declare module 'wagmi' {
+  interface Register {
+    config: ReturnType<typeof createWagmiConfig>;
+  }
+}
