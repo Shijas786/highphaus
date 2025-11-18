@@ -6,7 +6,7 @@ export const revalidate = 0;
 export const fetchCache = 'force-no-store';
 // Removed runtime = 'edge' to avoid Vercel Edge Function size limit (1 MB)
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { FaucetCard } from '@/components/FaucetCard';
 import { ContributionCard } from '@/components/ContributionCard';
 import { useStats } from '@/hooks/use-stats';
@@ -20,23 +20,6 @@ export default function Home() {
   const { data: stats } = useStats();
   const { data: ethPrice } = useEthPrice();
   const [activeTab, setActiveTab] = useState('claim');
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // ---- EARLY RETURN AFTER ALL HOOKS ----
-  if (!mounted) {
-    return (
-      <div className="w-full h-screen flex items-center justify-center" style={{ background: '#FFFFFF', color: '#000000' }}>
-        <div className="text-center">
-          <div className="text-lg mb-2">Loading...</div>
-          <div className="text-sm opacity-60">Preparing page</div>
-        </div>
-      </div>
-    );
-  }
 
   // ---- SAFE VALUES ----
   const safeEthPrice = ethPrice || 2500;
