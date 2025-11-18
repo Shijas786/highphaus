@@ -41,8 +41,11 @@ export function isFarcasterMiniapp(): boolean {
 
 /**
  * Initialize Farcaster SDK and get user context
+ * CRITICAL: Always calls sdk.actions.ready() to hide loading screen, even on error
  */
 export async function initializeFarcasterSDK(): Promise<FarcasterContext | null> {
+  let sdk: any = null;
+  
   try {
     // Check if we're in a Farcaster miniapp environment
     if (typeof window === 'undefined') return null;
@@ -54,20 +57,42 @@ export async function initializeFarcasterSDK(): Promise<FarcasterContext | null>
     }
 
     // Import SDK dynamically (only on client)
-    const { sdk } = await import('@farcaster/miniapp-sdk');
+    const sdkModule = await import('@farcaster/miniapp-sdk');
+    sdk = sdkModule.sdk;
     sdkInstance = sdk;
     isInitialized = true;
 
     // Get user context
     const context: FarcasterContext = await sdk.context;
 
-    // Call actions.ready() to hide loading screen
+    // CRITICAL: Always call ready() to hide loading screen, even if context is null
     // Reference: https://miniapps.farcaster.xyz/docs/getting-started#making-your-app-display
     await sdk.actions.ready();
 
     return context;
   } catch (error) {
     console.error('Failed to initialize Farcaster SDK:', error);
+    
+    // CRITICAL: Even if initialization fails, we MUST call ready() to hide loading screen
+    // Otherwise the miniapp will show a black screen forever
+    if (sdk && typeof sdk.actions?.ready === 'function') {
+      try {
+        await sdk.actions.ready();
+      } catch (readyError) {
+        console.error('Failed to call sdk.actions.ready():', readyError);
+      }
+    } else if (typeof window !== 'undefined') {
+      // If SDK import failed, try to import again just to call ready()
+      try {
+        const { sdk: fallbackSdk } = await import('@farcaster/miniapp-sdk');
+        if (fallbackSdk && typeof fallbackSdk.actions?.ready === 'function') {
+          await fallbackSdk.actions.ready();
+        }
+      } catch (readyError) {
+        console.error('Failed to call ready() on fallback SDK:', readyError);
+      }
+    }
+    
     return null;
   }
 }

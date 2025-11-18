@@ -30,6 +30,7 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
         if (inMiniapp) {
           try {
             // Initialize SDK and get user context
+            // CRITICAL: initializeFarcasterSDK() will call sdk.actions.ready() to hide loading screen
             const context = await initializeFarcasterSDK();
 
             if (context?.user) {
@@ -41,9 +42,12 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
               });
             }
           } catch (sdkError) {
-            // SDK initialization failed - app should still work without Farcaster
+            // SDK initialization failed - but ready() should have been called
             console.warn('Farcaster SDK initialization failed (app will continue without it):', sdkError);
           }
+        } else {
+          // Not in miniapp - no need to call ready()
+          setIsLoading(false);
         }
       } catch (error) {
         // Non-critical error - app should still render
