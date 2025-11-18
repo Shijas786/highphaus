@@ -51,17 +51,26 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
         <style dangerouslySetInnerHTML={{
           __html: `
-            body {
+            * {
+              margin: 0;
+              padding: 0;
+            }
+            html, body {
+              width: 100%;
+              height: 100%;
               margin: 0;
               padding: 0;
               background: #FFFFFF !important;
               color: #000000 !important;
               font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
               -webkit-font-smoothing: antialiased;
+              overflow-x: hidden;
             }
             #__next {
+              width: 100%;
               min-height: 100vh;
-              background: #FFFFFF;
+              background: #FFFFFF !important;
+              color: #000000 !important;
             }
           `
         }} />
