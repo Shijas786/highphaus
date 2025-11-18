@@ -52,11 +52,13 @@ export function WagmiProviderWrapper({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  // Before config loads → render minimal shell
+  // Before config loads → show loading, don't render children (they use wagmi hooks)
   if (!wagmiConfig) {
     return (
       <QueryClientProvider client={queryClient}>
-        {children}
+        <div className="w-full h-screen flex items-center justify-center text-black">
+          <div>Loading...</div>
+        </div>
       </QueryClientProvider>
     );
   }
