@@ -22,6 +22,9 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     async function loadFarcasterContext() {
+      // Set loading to false immediately to not block rendering
+      setIsLoading(false);
+      
       try {
         // Check if we're in a Farcaster miniapp
         const inMiniapp = isFarcasterMiniapp();
@@ -45,15 +48,10 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
             // SDK initialization failed - but ready() should have been called
             console.warn('Farcaster SDK initialization failed (app will continue without it):', sdkError);
           }
-        } else {
-          // Not in miniapp - no need to call ready()
-          setIsLoading(false);
         }
       } catch (error) {
         // Non-critical error - app should still render
         console.warn('Error loading Farcaster context (app will continue):', error);
-      } finally {
-        setIsLoading(false);
       }
     }
 
