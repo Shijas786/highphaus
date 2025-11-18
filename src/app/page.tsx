@@ -29,8 +29,11 @@ export default function Home() {
   // ---- EARLY RETURN AFTER ALL HOOKS ----
   if (!mounted) {
     return (
-      <div className="w-full h-screen flex items-center justify-center text-black">
-        Loading...
+      <div className="w-full h-screen flex items-center justify-center" style={{ background: '#FFFFFF', color: '#000000' }}>
+        <div className="text-center">
+          <div className="text-lg mb-2">Loading...</div>
+          <div className="text-sm opacity-60">Preparing page</div>
+        </div>
       </div>
     );
   }
