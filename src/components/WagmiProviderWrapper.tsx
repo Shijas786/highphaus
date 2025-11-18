@@ -1,15 +1,11 @@
 'use client';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { WagmiProvider, type Config } from 'wagmi';
-import { ReactNode, useEffect, useState } from 'react';
+import { WagmiProvider } from 'wagmi';
+import { ReactNode, useEffect } from 'react';
+import { wagmiConfig, initializeAppKit } from '@/config/appkit';
 
-/**
- * IMPORTANT:
- * We DO NOT import wagmiConfig or AppKit at the top.
- * They MUST be loaded inside useEffect or lazy-init to avoid Warpcast crashes.
- */
-
+// Create QueryClient
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -22,82 +18,38 @@ const queryClient = new QueryClient({
 });
 
 export function WagmiProviderWrapper({ children }: { children: ReactNode }) {
-  const [wagmiConfig, setWagmiConfig] = useState<Config | null>(null);
-  const [initError, setInitError] = useState<string | null>(null);
-
+  // Initialize AppKit after hydration (critical for Farcaster webview)
   useEffect(() => {
-    let cancelled = false;
-    let timeoutId: NodeJS.Timeout;
-
-    async function init() {
-      let configCreated = false;
-      
-      try {
-        // Set timeout to prevent infinite loading on mobile
-        timeoutId = setTimeout(() => {
-          if (!cancelled && !configCreated) {
-            console.warn('Wagmi config init timeout - rendering without WagmiProvider');
-            setInitError('Initialization timeout');
-          }
-        }, 5000); // 5 second timeout
-
-        // Dynamically import ONLY on client
-        const appkit = await import('@/config/appkit');
-        
-        // Create wagmi config on client only (NOT on import)
-        const config = appkit.createWagmiConfig();
-        configCreated = true;
-
-        if (!cancelled) {
-          clearTimeout(timeoutId);
-          setWagmiConfig(config);
-
-          // Now safely initialize AppKit AFTER wagmi is set
-          appkit.initializeAppKit();
-        }
-      } catch (err) {
-        console.error('Wagmi/AppKit init failed:', err);
-        if (!cancelled) {
-          clearTimeout(timeoutId);
-          setInitError(err instanceof Error ? err.message : 'Unknown error');
-        }
-      }
-    }
-
-    init();
-    return () => {
-      cancelled = true;
-      if (timeoutId) clearTimeout(timeoutId);
+    if (typeof window === 'undefined') return;
+    
+    // Wait for window to be fully available
+    const init = () => {
+      initializeAppKit();
     };
+
+    // Small delay to ensure window is ready (especially for Farcaster webview)
+    if (document.readyState === 'complete') {
+      init();
+      return;
+    }
+    
+    window.addEventListener('load', init);
+    return () => window.removeEventListener('load', init);
   }, []);
 
-  // If error or timeout, render children anyway (they'll handle missing wagmi gracefully)
-  if (initError) {
-    console.warn('Rendering without WagmiProvider due to init error:', initError);
+  // Always provide WagmiProvider during SSR and client (adapter supports SSR)
+  // Only AppKit initialization is delayed for Farcaster webview compatibility
+  try {
     return (
-      <QueryClientProvider client={queryClient}>
-        {children}
-      </QueryClientProvider>
+      <WagmiProvider config={wagmiConfig}>
+        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      </WagmiProvider>
     );
-  }
-
-  // Before config loads → show loading, don't render children (they use wagmi hooks)
-  if (!wagmiConfig) {
+  } catch (error) {
+    console.error('WagmiProvider initialization error:', error);
+    // If Wagmi fails, still provide QueryClient at minimum
     return (
-      <QueryClientProvider client={queryClient}>
-        <div className="w-full h-screen flex items-center justify-center" style={{ background: '#FFFFFF', color: '#000000' }}>
-          <div className="text-center">
-            <div className="text-lg mb-2">Loading...</div>
-            <div className="text-sm opacity-60">Initializing wallet connection</div>
-          </div>
-        </div>
-      </QueryClientProvider>
-    );
-  }
-
-  return (
-    <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-    </WagmiProvider>
-  );
+    );
+  }
 }

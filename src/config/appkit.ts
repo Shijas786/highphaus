@@ -12,42 +12,27 @@ if (!projectId) {
 // Networks configuration
 const networks = [base, baseSepolia];
 
-// Create WagmiAdapter with SSR support
-let wagmiAdapter: WagmiAdapter | null = null;
+// Create WagmiAdapter with SSR support (synchronous - works on mobile)
+export const wagmiAdapter = new WagmiAdapter({
+  networks: networks as [typeof base, typeof baseSepolia],
+  projectId,
+  ssr: true, // SSR support - adapter handles this safely
+});
+
+// Get wagmi config (synchronous - always available)
+export const wagmiConfig = wagmiAdapter.wagmiConfig;
+
+// Export config for backward compatibility
+export const config = wagmiConfig;
+
 let appKitInitialized = false;
 
 /**
- * Create wagmi config on client only (NOT on import)
- * This prevents Warpcast crashes from early wallet initialization
- */
-export function createWagmiConfig() {
-  if (typeof window === 'undefined') {
-    throw new Error('createWagmiConfig must be called on client side only');
-  }
-
-  // Create adapter if not already created
-  if (!wagmiAdapter) {
-    wagmiAdapter = new WagmiAdapter({
-      networks: networks as [typeof base, typeof baseSepolia],
-      projectId,
-      ssr: false, // Client-side only
-    });
-  }
-
-  return wagmiAdapter.wagmiConfig;
-}
-
-/**
- * Initialize AppKit AFTER wagmi config is ready
- * This prevents Warpcast crashes from early wallet initialization
+ * Initialize AppKit (client-side only, delayed for Farcaster webview)
  */
 export function initializeAppKit() {
   if (typeof window === 'undefined') return; // Skip SSR
   if (appKitInitialized) return; // Already initialized
-  if (!wagmiAdapter) {
-    console.warn('WagmiAdapter not initialized. Call createWagmiConfig() first.');
-    return;
-  }
 
   try {
     createAppKit({
@@ -81,6 +66,6 @@ export { networks };
 // Wagmi type declaration
 declare module 'wagmi' {
   interface Register {
-    config: ReturnType<typeof createWagmiConfig>;
+    config: typeof wagmiConfig;
   }
 }
