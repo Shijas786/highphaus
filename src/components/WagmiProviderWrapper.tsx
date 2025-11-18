@@ -30,10 +30,12 @@ export function WagmiProviderWrapper({ children }: { children: ReactNode }) {
     let timeoutId: NodeJS.Timeout;
 
     async function init() {
+      let configCreated = false;
+      
       try {
         // Set timeout to prevent infinite loading on mobile
         timeoutId = setTimeout(() => {
-          if (!cancelled && !wagmiConfig) {
+          if (!cancelled && !configCreated) {
             console.warn('Wagmi config init timeout - rendering without WagmiProvider');
             setInitError('Initialization timeout');
           }
@@ -44,6 +46,7 @@ export function WagmiProviderWrapper({ children }: { children: ReactNode }) {
         
         // Create wagmi config on client only (NOT on import)
         const config = appkit.createWagmiConfig();
+        configCreated = true;
 
         if (!cancelled) {
           clearTimeout(timeoutId);
