@@ -62,12 +62,16 @@ export async function initializeFarcasterSDK(): Promise<FarcasterContext | null>
     sdkInstance = sdk;
     isInitialized = true;
 
-    // Get user context
-    const context: FarcasterContext = await sdk.context;
-
-    // CRITICAL: Always call ready() to hide loading screen, even if context is null
+    // CRITICAL: Call ready() FIRST to hide loading screen immediately
     // Reference: https://miniapps.farcaster.xyz/docs/getting-started#making-your-app-display
-    await sdk.actions.ready();
+    try {
+      await sdk.actions.ready();
+    } catch (readyError) {
+      console.error('Failed to call sdk.actions.ready():', readyError);
+    }
+
+    // Get user context AFTER ready() is called
+    const context: FarcasterContext = await sdk.context;
 
     return context;
   } catch (error) {
@@ -79,7 +83,7 @@ export async function initializeFarcasterSDK(): Promise<FarcasterContext | null>
       try {
         await sdk.actions.ready();
       } catch (readyError) {
-        console.error('Failed to call sdk.actions.ready():', readyError);
+        console.error('Failed to call sdk.actions.ready() in error handler:', readyError);
       }
     } else if (typeof window !== 'undefined') {
       // If SDK import failed, try to import again just to call ready()
@@ -87,6 +91,7 @@ export async function initializeFarcasterSDK(): Promise<FarcasterContext | null>
         const { sdk: fallbackSdk } = await import('@farcaster/miniapp-sdk');
         if (fallbackSdk && typeof fallbackSdk.actions?.ready === 'function') {
           await fallbackSdk.actions.ready();
+          console.log('✅ Called ready() via fallback SDK import');
         }
       } catch (readyError) {
         console.error('Failed to call ready() on fallback SDK:', readyError);
