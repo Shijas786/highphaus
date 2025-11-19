@@ -8,6 +8,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
+    // eslint-disable-next-line no-console
     console.log('Farcaster webhook received:', body);
 
     // Handle different webhook events
@@ -15,15 +16,19 @@ export async function POST(request: NextRequest) {
 
     switch (event) {
       case 'frame.added':
+        // eslint-disable-next-line no-console
         console.log('User added frame:', data);
         break;
       case 'frame.removed':
+        // eslint-disable-next-line no-console
         console.log('User removed frame:', data);
         break;
       case 'user.action':
+        // eslint-disable-next-line no-console
         console.log('User action:', data);
         break;
       default:
+        // eslint-disable-next-line no-console
         console.log('Unknown event:', event);
     }
 
@@ -31,7 +36,8 @@ export async function POST(request: NextRequest) {
       success: true,
       message: 'Webhook received',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    // eslint-disable-next-line no-console
     console.error('Webhook error:', error);
     return NextResponse.json(
       {

@@ -55,13 +55,14 @@ export async function POST(request: NextRequest) {
       baseId,
       signer: signer.address,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    // eslint-disable-next-line no-console
     console.error('Attestation signing error:', error);
     return NextResponse.json(
       {
         success: false,
         error: 'Failed to sign attestation',
-        details: error.message,
+        details: error instanceof Error ? error.message : String(error),
       },
       { status: 500 }
     );

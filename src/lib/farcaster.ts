@@ -44,6 +44,7 @@ export function isFarcasterMiniapp(): boolean {
  * CRITICAL: Always calls sdk.actions.ready() to hide loading screen, even on error
  */
 export async function initializeFarcasterSDK(): Promise<FarcasterContext | null> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let sdk: any = null;
   
   try {
@@ -91,6 +92,7 @@ export async function initializeFarcasterSDK(): Promise<FarcasterContext | null>
         const { sdk: fallbackSdk } = await import('@farcaster/miniapp-sdk');
         if (fallbackSdk && typeof fallbackSdk.actions?.ready === 'function') {
           await fallbackSdk.actions.ready();
+          // eslint-disable-next-line no-console
           console.log('✅ Called ready() via fallback SDK import');
         }
       } catch (readyError) {

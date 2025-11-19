@@ -37,6 +37,7 @@ export async function POST(request: NextRequest) {
     // Mark as NFT eligible (assuming donation >= $1)
     nftEligibleAddresses.add(address.toLowerCase());
 
+    // eslint-disable-next-line no-console
     console.log(`Donation logged: ${address} - ${amount} ${token} - ${txHash}`);
 
     return NextResponse.json(

@@ -17,19 +17,8 @@ import { Droplet, Heart } from 'lucide-react';
 
 export default function Home() {
   // ---- ALL HOOKS ON TOP, NO CONDITIONS ----
-  // Wrap hooks in try-catch to prevent crashes
-  let stats, ethPrice;
-  try {
-    const statsResult = useStats();
-    const ethPriceResult = useEthPrice();
-    stats = statsResult?.data;
-    ethPrice = ethPriceResult?.data;
-  } catch (error) {
-    console.error('Hook error:', error);
-    stats = null;
-    ethPrice = null;
-  }
-  
+  const { data: stats } = useStats();
+  const { data: ethPrice } = useEthPrice();
   const [activeTab, setActiveTab] = useState('claim');
 
   // ---- SAFE VALUES ----
