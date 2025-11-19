@@ -42,11 +42,13 @@ export function initializeAppKit() {
       metadata: {
         name: 'HighpHaus Faucet',
         description: 'Claim free ETH on Base Network with Farcaster',
-        url: 'https://highp-haus.vercel.app',
-        icons: ['https://highp-haus.vercel.app/icon.png'],
+        url: typeof window !== 'undefined' ? window.location.origin : 'https://highp-haus.vercel.app',
+        icons: [typeof window !== 'undefined' ? `${window.location.origin}/icon.png` : 'https://highp-haus.vercel.app/icon.png'],
       },
       features: {
         analytics: true,
+        socials: ['farcaster', 'google', 'x', 'github', 'discord', 'apple'],
+        email: true,
       },
       themeMode: 'dark',
       themeVariables: {
