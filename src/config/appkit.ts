@@ -9,8 +9,10 @@ if (!projectId) {
   console.warn('⚠️ NEXT_PUBLIC_REOWN_PROJECT_ID not set');
 }
 
+import { type AppKitNetwork } from '@reown/appkit/networks';
+
 // Networks configuration
-export const networks = [base, baseSepolia];
+export const networks: [AppKitNetwork, ...AppKitNetwork[]] = [base, baseSepolia];
 
 // Create WagmiAdapter with SSR support (synchronous - works on mobile)
 export const wagmiAdapter = new WagmiAdapter({
