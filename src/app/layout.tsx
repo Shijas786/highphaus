@@ -39,7 +39,12 @@ export const viewport: Viewport = {
   maximumScale: 5,
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+import { headers } from 'next/headers';
+
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const headersObj = await headers();
+  const cookies = headersObj.get('cookie');
+
   return (
     <html lang="en">
       <head>
@@ -83,7 +88,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <p>Please enable JavaScript to use this application.</p>
           </div>
         </noscript>
-        <Providers>{children}</Providers>
+        <Providers cookies={cookies}>{children}</Providers>
       </body>
     </html>
   );

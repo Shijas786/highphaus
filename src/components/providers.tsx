@@ -7,7 +7,7 @@ import { WagmiProviderWrapper } from './WagmiProviderWrapper';
 import { FarcasterProvider } from './FarcasterProvider';
 import { ErrorBoundary } from './ErrorBoundary';
 
-export function Providers({ children }: { children: ReactNode }) {
+export function Providers({ children, cookies }: { children: ReactNode; cookies: string | null }) {
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -26,7 +26,7 @@ export function Providers({ children }: { children: ReactNode }) {
   try {
     return (
       <ErrorBoundary>
-        <WagmiProviderWrapper>
+        <WagmiProviderWrapper cookies={cookies}>
           <QueryClientProvider client={queryClient}>
             <FarcasterProvider>
               {children}

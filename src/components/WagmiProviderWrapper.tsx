@@ -1,9 +1,11 @@
 'use client';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { WagmiProvider } from 'wagmi';
-import { ReactNode, useEffect } from 'react';
-import { wagmiConfig, initializeAppKit } from '@/config/appkit';
+import { WagmiProvider, cookieToInitialState, type Config } from 'wagmi';
+import { ReactNode } from 'react';
+import { wagmiAdapter, projectId, networks } from '@/config/appkit';
+import { createAppKit } from '@reown/appkit/react';
+import { mainnet } from '@reown/appkit/networks';
 
 // Create QueryClient
 const queryClient = new QueryClient({
@@ -17,28 +19,39 @@ const queryClient = new QueryClient({
   },
 });
 
-export function WagmiProviderWrapper({ children }: { children: ReactNode }) {
-  // Initialize AppKit after hydration (critical for Farcaster webview)
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
+// Initialize AppKit outside the component render cycle
+if (!projectId) {
+  console.error('AppKit Initialization Error: Project ID is missing.');
+} else {
+  createAppKit({
+    adapters: [wagmiAdapter],
+    projectId,
+    networks: networks as [typeof mainnet, ...typeof mainnet[]],
+    metadata: {
+      name: 'HighpHaus Faucet',
+      description: 'Claim free ETH on Base Network with Farcaster',
+      url: typeof window !== 'undefined' ? window.location.origin : 'https://highp-haus.vercel.app',
+      icons: [typeof window !== 'undefined' ? `${window.location.origin}/icon.png` : 'https://highp-haus.vercel.app/icon.png'],
+    },
+    features: {
+      analytics: true,
+      socials: ['farcaster', 'google', 'x', 'github', 'discord', 'apple'],
+      email: true,
+    },
+    themeMode: 'dark',
+    themeVariables: {
+      '--w3m-accent': '#0052FF',
+      '--w3m-border-radius-master': '4px',
+    },
+  });
+}
 
-    // Initialize immediately on mount
-    initializeAppKit();
-  }, []);
+export function WagmiProviderWrapper({ children, cookies }: { children: ReactNode; cookies: string | null }) {
+  const initialState = cookieToInitialState(wagmiAdapter.wagmiConfig as Config, cookies);
 
-  // Always provide WagmiProvider during SSR and client (adapter supports SSR)
-  // Only AppKit initialization is delayed for Farcaster webview compatibility
-  try {
-    return (
-      <WagmiProvider config={wagmiConfig}>
-        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-      </WagmiProvider>
-    );
-  } catch (error) {
-    console.error('WagmiProvider initialization error:', error);
-    // If Wagmi fails, still provide QueryClient at minimum
-    return (
+  return (
+    <WagmiProvider config={wagmiAdapter.wagmiConfig as Config} initialState={initialState}>
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-    );
-  }
+    </WagmiProvider>
+  );
 }
