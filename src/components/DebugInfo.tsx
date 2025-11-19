@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 
 export function DebugInfo() {
     const { isConnected, status: accountStatus } = useAccount();
-    const { connectors, status: connectStatus, error } = useConnect();
+    const { connectors, error } = useConnect();
     const { isMiniapp, user } = useFarcaster();
     const [mounted, setMounted] = useState(false);
 
