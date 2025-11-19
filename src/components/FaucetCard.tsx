@@ -145,7 +145,7 @@ export function FaucetCard() {
         </div>
 
         {!isConnected ? (
-          <div className="w-full flex justify-center">
+          <div className="w-full flex justify-center min-h-[44px] items-center">
             <appkit-button />
           </div>
         ) : (

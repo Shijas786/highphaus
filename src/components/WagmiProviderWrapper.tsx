@@ -21,20 +21,9 @@ export function WagmiProviderWrapper({ children }: { children: ReactNode }) {
   // Initialize AppKit after hydration (critical for Farcaster webview)
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    
-    // Wait for window to be fully available
-    const init = () => {
-      initializeAppKit();
-    };
 
-    // Small delay to ensure window is ready (especially for Farcaster webview)
-    if (document.readyState === 'complete') {
-      init();
-      return;
-    }
-    
-    window.addEventListener('load', init);
-    return () => window.removeEventListener('load', init);
+    // Initialize immediately on mount
+    initializeAppKit();
   }, []);
 
   // Always provide WagmiProvider during SSR and client (adapter supports SSR)

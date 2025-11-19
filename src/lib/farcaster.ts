@@ -30,11 +30,11 @@ export function isFarcasterMiniapp(): boolean {
   const isInIframe = window.parent !== window;
 
   // Additional checks for Farcaster-specific context
-    const hasFarcasterIndicators =
-      window.location.href.includes('farcaster') ||
-      window.location.href.includes('warpcast') ||
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (window as any).__FARCASTER__ === true;
+  const hasFarcasterIndicators =
+    window.location.href.includes('farcaster') ||
+    window.location.href.includes('warpcast') ||
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (window as any).__FARCASTER__ === true;
 
   return isInIframe || hasFarcasterIndicators;
 }
@@ -46,38 +46,43 @@ export function isFarcasterMiniapp(): boolean {
 export async function initializeFarcasterSDK(): Promise<FarcasterContext | null> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let sdk: any = null;
-  
+
   try {
     // Check if we're in a Farcaster miniapp environment
     if (typeof window === 'undefined') return null;
 
-    // Only initialize once
+    // Import SDK dynamically (only on client)
+    const sdkModule = await import('@farcaster/miniapp-sdk');
+    sdk = sdkModule.sdk;
+
+    // CRITICAL: Call ready() FIRST to hide loading screen immediately
+    // We do this EVERY TIME initialize is called, just to be safe
+    try {
+      // Race ready() with a timeout to ensure we don't hang
+      await Promise.race([
+        sdk.actions.ready(),
+        new Promise((resolve) => setTimeout(resolve, 500))
+      ]);
+    } catch (readyError) {
+      console.error('Failed to call sdk.actions.ready():', readyError);
+    }
+
+    // Only initialize context once
     if (isInitialized && sdkInstance) {
       const context = await sdkInstance.context;
       return context;
     }
 
-    // Import SDK dynamically (only on client)
-    const sdkModule = await import('@farcaster/miniapp-sdk');
-    sdk = sdkModule.sdk;
     sdkInstance = sdk;
     isInitialized = true;
 
-    // CRITICAL: Call ready() FIRST to hide loading screen immediately
-    // Reference: https://miniapps.farcaster.xyz/docs/getting-started#making-your-app-display
-    try {
-      await sdk.actions.ready();
-    } catch (readyError) {
-      console.error('Failed to call sdk.actions.ready():', readyError);
-    }
-
-    // Get user context AFTER ready() is called
+    // Get user context
     const context: FarcasterContext = await sdk.context;
 
     return context;
   } catch (error) {
     console.error('Failed to initialize Farcaster SDK:', error);
-    
+
     // CRITICAL: Even if initialization fails, we MUST call ready() to hide loading screen
     // Otherwise the miniapp will show a black screen forever
     if (sdk && typeof sdk.actions?.ready === 'function') {
@@ -99,7 +104,7 @@ export async function initializeFarcasterSDK(): Promise<FarcasterContext | null>
         console.error('Failed to call ready() on fallback SDK:', readyError);
       }
     }
-    
+
     return null;
   }
 }
