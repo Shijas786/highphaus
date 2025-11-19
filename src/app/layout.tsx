@@ -41,6 +41,8 @@ export const viewport: Viewport = {
 
 import { headers } from 'next/headers';
 
+import { DebugInfo } from '@/components/DebugInfo';
+
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const headersObj = await headers();
   const cookies = headersObj.get('cookie');
@@ -88,7 +90,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <p>Please enable JavaScript to use this application.</p>
           </div>
         </noscript>
-        <Providers cookies={cookies}>{children}</Providers>
+        <Providers cookies={cookies}>
+          {children}
+          <DebugInfo />
+        </Providers>
       </body>
     </html>
   );
