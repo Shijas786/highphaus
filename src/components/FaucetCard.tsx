@@ -145,8 +145,8 @@ export function FaucetCard() {
         </div>
 
         {!isConnected ? (
-          <div className="w-full text-center text-sm text-gray-600 border p-3 rounded-md">
-            Connect wallet to claim
+          <div className="w-full flex justify-center">
+            <appkit-button />
           </div>
         ) : (
           <Button
