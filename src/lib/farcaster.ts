@@ -26,6 +26,10 @@ let isInitialized = false;
 export function isFarcasterMiniapp(): boolean {
   if (typeof window === 'undefined') return false;
 
+  // Check for Farcaster SDK object (most reliable)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const hasFarcasterSDK = typeof (window as any).farcaster !== 'undefined';
+
   // Best indicator: running in iframe
   const isInIframe = window.parent !== window;
 
@@ -36,7 +40,7 @@ export function isFarcasterMiniapp(): boolean {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (window as any).__FARCASTER__ === true;
 
-  return isInIframe || hasFarcasterIndicators;
+  return hasFarcasterSDK || isInIframe || hasFarcasterIndicators;
 }
 
 /**
