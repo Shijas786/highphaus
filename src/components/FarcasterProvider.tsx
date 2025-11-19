@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { FarcasterUser, initializeFarcasterSDK, isFarcasterMiniapp } from '@/lib/farcaster';
+import { useConnect, useAccount } from 'wagmi';
 
 interface FarcasterContextType {
   user: FarcasterUser | null;
@@ -20,11 +21,14 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isMiniapp, setIsMiniapp] = useState(false);
 
+  const { connect, connectors } = useConnect();
+  const { isConnected } = useAccount();
+
   useEffect(() => {
     async function loadFarcasterContext() {
       // Set loading to false immediately to not block rendering
       setIsLoading(false);
-      
+
       try {
         // Check if we're in a Farcaster miniapp
         const inMiniapp = isFarcasterMiniapp();
@@ -44,6 +48,14 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
                 pfpUrl: context.user.pfpUrl,
               });
             }
+
+            // Auto-connect if not connected
+            if (!isConnected) {
+              const injectedConnector = connectors.find(c => c.id === 'injected');
+              if (injectedConnector) {
+                connect({ connector: injectedConnector });
+              }
+            }
           } catch (sdkError) {
             // SDK initialization failed - but ready() should have been called
             console.warn('Farcaster SDK initialization failed (app will continue without it):', sdkError);
@@ -56,7 +68,7 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
     }
 
     loadFarcasterContext();
-  }, []);
+  }, [connect, connectors, isConnected]);
 
   return (
     <FarcasterContext.Provider value={{ user, isLoading, isMiniapp }}>
