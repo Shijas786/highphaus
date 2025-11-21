@@ -34,8 +34,8 @@ if (!projectId) {
     },
     features: {
       analytics: true,
-      // Disable social logins and email - only use WalletConnect/Reown
-      socials: [],
+      // Keep only Farcaster for social login
+      socials: ['farcaster'],
       email: false,
     },
     themeMode: 'dark',
