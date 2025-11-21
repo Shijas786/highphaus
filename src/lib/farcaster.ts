@@ -38,6 +38,12 @@ export function isFarcasterMiniapp(): boolean {
   const isInIframe = window.parent !== window;
   console.log('🔍 Miniapp detection - In iframe:', isInIframe);
 
+  // Check user agent for Farcaster/Warpcast
+  const userAgent = navigator.userAgent.toLowerCase();
+  const hasFarcasterUA = userAgent.includes('farcaster') || userAgent.includes('warpcast');
+  console.log('🔍 Miniapp detection - User Agent contains Farcaster/Warpcast:', hasFarcasterUA);
+  console.log('🔍 User Agent:', userAgent);
+
   // Additional checks for Farcaster-specific context
   const hasFarcasterIndicators =
     window.location.href.includes('farcaster') ||
@@ -52,7 +58,8 @@ export function isFarcasterMiniapp(): boolean {
   const hasEthereumProvider = typeof (window as any).ethereum !== 'undefined';
   console.log('🔍 Miniapp detection - Ethereum provider:', hasEthereumProvider);
 
-  const isMiniapp = hasFarcasterSDK || isInIframe || hasFarcasterIndicators;
+  // More permissive detection - if ANY indicator is true, consider it a miniapp
+  const isMiniapp = hasFarcasterSDK || isInIframe || hasFarcasterIndicators || hasFarcasterUA;
   console.log('🔍 Final miniapp detection result:', isMiniapp);
 
   return isMiniapp;
