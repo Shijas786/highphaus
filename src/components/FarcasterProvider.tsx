@@ -25,7 +25,10 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
   const { isConnected } = useAccount();
 
   useEffect(() => {
+    console.log('🚀 FarcasterProvider useEffect RUNNING', new Date().toISOString());
+
     async function loadFarcasterContext() {
+      console.log('📦 loadFarcasterContext() STARTED');
       // Set loading to false immediately to not block rendering
       setIsLoading(false);
 
