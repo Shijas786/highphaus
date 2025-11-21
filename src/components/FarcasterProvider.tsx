@@ -2,7 +2,6 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { FarcasterUser, initializeFarcasterSDK, isFarcasterMiniapp } from '@/lib/farcaster';
-import { useConnect, useAccount } from 'wagmi';
 
 interface FarcasterContextType {
   user: FarcasterUser | null;
@@ -21,14 +20,10 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isMiniapp, setIsMiniapp] = useState(false);
 
-  const { connect, connectors } = useConnect();
-  const { isConnected } = useAccount();
-
   useEffect(() => {
-    console.log('🚀 FarcasterProvider useEffect RUNNING', new Date().toISOString());
+    console.log('🚀 FarcasterProvider initializing...');
 
     async function loadFarcasterContext() {
-      console.log('📦 loadFarcasterContext() STARTED');
       // Set loading to false immediately to not block rendering
       setIsLoading(false);
 
@@ -38,12 +33,14 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
         setIsMiniapp(inMiniapp);
 
         if (inMiniapp) {
+          console.log('✅ Running in Farcaster miniapp');
           try {
             // Initialize SDK and get user context
             // CRITICAL: initializeFarcasterSDK() will call sdk.actions.ready() to hide loading screen
             const context = await initializeFarcasterSDK();
 
             if (context?.user) {
+              console.log('✅ Farcaster user loaded:', context.user.username);
               setUser({
                 fid: context.user.fid,
                 username: context.user.username,
@@ -52,43 +49,20 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
               });
             }
           } catch (sdkError) {
-            // SDK initialization failed - but ready() should have been called
-            console.warn('Farcaster SDK initialization failed (app will continue without it):', sdkError);
-          }
-        }
-
-        // Auto-connect attempt (works both in miniapp AND normal browser)
-        if (!isConnected) {
-          console.log('🔌 Attempting auto-connect...');
-          console.log('Available connectors:', connectors.map(c => `${c.id} (${c.name})`));
-
-          // Try finding injected connector (Farcaster wallet or browser wallet)
-          const injectedConnector = connectors.find(c => c.id === 'injected');
-
-          if (injectedConnector) {
-            console.log('✅ Found injected connector, connecting...');
-            try {
-              await connect({ connector: injectedConnector });
-              console.log('✅ Auto-connect successful');
-            } catch (connectError) {
-              console.error('❌ Auto-connect failed:', connectError);
-            }
-          } else {
-            console.warn('⚠️ No injected connector found. Available:', connectors.map(c => c.id));
-            console.log('💡 User may need to manually connect wallet');
+            console.warn('Farcaster SDK initialization failed:', sdkError);
           }
         } else {
-          console.log('✅ Already connected');
+          console.log('ℹ️ Not in Farcaster miniapp - running in regular browser');
         }
+
+        console.log('💡 Use Reown/WalletConnect button to connect wallet');
       } catch (error) {
-        // Non-critical error - app should still render
-        console.warn('Error loading Farcaster context (app will continue):', error);
+        console.warn('Error loading Farcaster context:', error);
       }
     }
 
     loadFarcasterContext();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [connect, connectors]); // Removed isConnected to prevent re-runs
+  }, []); // Run only once on mount
 
   return (
     <FarcasterContext.Provider value={{ user, isLoading, isMiniapp }}>

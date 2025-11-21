@@ -34,8 +34,9 @@ if (!projectId) {
     },
     features: {
       analytics: true,
-      socials: ['farcaster', 'google', 'x', 'github', 'discord', 'apple'],
-      email: true,
+      // Disable social logins and email - only use WalletConnect/Reown
+      socials: [],
+      email: false,
     },
     themeMode: 'dark',
     themeVariables: {
