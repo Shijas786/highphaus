@@ -24,14 +24,19 @@ let isInitialized = false;
  * Check if running in Farcaster miniapp
  */
 export function isFarcasterMiniapp(): boolean {
-  if (typeof window === 'undefined') return false;
+  if (typeof window === 'undefined') {
+    console.log('🔍 Miniapp detection: window is undefined (SSR)');
+    return false;
+  }
 
   // Check for Farcaster SDK object (most reliable)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const hasFarcasterSDK = typeof (window as any).farcaster !== 'undefined';
+  console.log('🔍 Miniapp detection - Farcaster SDK:', hasFarcasterSDK);
 
   // Best indicator: running in iframe
   const isInIframe = window.parent !== window;
+  console.log('🔍 Miniapp detection - In iframe:', isInIframe);
 
   // Additional checks for Farcaster-specific context
   const hasFarcasterIndicators =
@@ -39,8 +44,18 @@ export function isFarcasterMiniapp(): boolean {
     window.location.href.includes('warpcast') ||
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (window as any).__FARCASTER__ === true;
+  console.log('🔍 Miniapp detection - URL/context indicators:', hasFarcasterIndicators);
+  console.log('🔍 Current URL:', window.location.href);
 
-  return hasFarcasterSDK || isInIframe || hasFarcasterIndicators;
+  // Check for ethereum provider (wallet)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const hasEthereumProvider = typeof (window as any).ethereum !== 'undefined';
+  console.log('🔍 Miniapp detection - Ethereum provider:', hasEthereumProvider);
+
+  const isMiniapp = hasFarcasterSDK || isInIframe || hasFarcasterIndicators;
+  console.log('🔍 Final miniapp detection result:', isMiniapp);
+
+  return isMiniapp;
 }
 
 /**

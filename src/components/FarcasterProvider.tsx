@@ -48,18 +48,34 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
                 pfpUrl: context.user.pfpUrl,
               });
             }
-
-            // Auto-connect if not connected
-            if (!isConnected) {
-              const injectedConnector = connectors.find(c => c.id === 'injected');
-              if (injectedConnector) {
-                connect({ connector: injectedConnector });
-              }
-            }
           } catch (sdkError) {
             // SDK initialization failed - but ready() should have been called
             console.warn('Farcaster SDK initialization failed (app will continue without it):', sdkError);
           }
+        }
+
+        // Auto-connect attempt (works both in miniapp AND normal browser)
+        if (!isConnected) {
+          console.log('🔌 Attempting auto-connect...');
+          console.log('Available connectors:', connectors.map(c => `${c.id} (${c.name})`));
+
+          // Try finding injected connector (Farcaster wallet or browser wallet)
+          const injectedConnector = connectors.find(c => c.id === 'injected');
+
+          if (injectedConnector) {
+            console.log('✅ Found injected connector, connecting...');
+            try {
+              await connect({ connector: injectedConnector });
+              console.log('✅ Auto-connect successful');
+            } catch (connectError) {
+              console.error('❌ Auto-connect failed:', connectError);
+            }
+          } else {
+            console.warn('⚠️ No injected connector found. Available:', connectors.map(c => c.id));
+            console.log('💡 User may need to manually connect wallet');
+          }
+        } else {
+          console.log('✅ Already connected');
         }
       } catch (error) {
         // Non-critical error - app should still render
@@ -68,7 +84,8 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
     }
 
     loadFarcasterContext();
-  }, [connect, connectors, isConnected]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [connect, connectors]); // Removed isConnected to prevent re-runs
 
   return (
     <FarcasterContext.Provider value={{ user, isLoading, isMiniapp }}>
