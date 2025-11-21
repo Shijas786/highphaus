@@ -34,8 +34,9 @@ if (!projectId) {
     },
     features: {
       analytics: true,
-      // Keep only Farcaster for social login
-      socials: ['farcaster'],
+      // No social logins - Farcaster user comes from SDK when in miniapp
+      // Only WalletConnect/Reown for wallet connections
+      socials: [],
       email: false,
     },
     themeMode: 'dark',
