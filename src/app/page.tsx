@@ -10,31 +10,31 @@ const SECTIONS = [
         title: "HIGHP HAUS",
         subtitle: "Digital Built Different",
         desc: "Design · Development · Marketing · Media · Web3",
-        img: "/hero_base_portrait.jpg",
+        video: "https://cdn.pixabay.com/video/2023/10/22/186105-877402660_large.mp4", // High fashion/artistic placeholder
     },
     {
         id: "build",
         title: "BUILD & TECH",
         desc: "Websites. Apps. Web3. Built to perform.",
-        img: "/build_section.jpg",
+        video: "https://cdn.pixabay.com/video/2020/05/25/40111-424754562_large.mp4",
     },
     {
         id: "design",
         title: "DESIGN & BRAND",
         desc: "Visual systems that actually work.",
-        img: "/design_main.jpg",
+        video: "https://cdn.pixabay.com/video/2021/08/04/83901-584742459_large.mp4",
     },
     {
         id: "marketing",
         title: "MARKETING & GROWTH",
         desc: "Attention is useless without results.",
-        img: "/grow_main.jpg",
+        video: "https://cdn.pixabay.com/video/2020/09/20/50531-462111082_large.mp4",
     },
     {
         id: "media",
         title: "MEDIA PRODUCTION",
         desc: "Content that earns attention.",
-        img: "/produce_main.jpg",
+        video: "https://cdn.pixabay.com/video/2023/04/16/159158-818224536_large.mp4",
     }
 ];
 
@@ -53,14 +53,16 @@ export default function Home() {
                 {SECTIONS.map((section, index) => (
                     <section key={section.id} className={styles.section}>
                         <div className={styles.bgWrapper}>
-                            <motion.img
-                                initial={{ scale: 1.1 }}
-                                whileInView={{ scale: 1 }}
-                                transition={{ duration: 1.5, ease: "easeOut" }}
-                                src={section.img}
-                                alt={section.title}
-                                className={styles.bgImage}
-                            />
+                            <video
+                                autoPlay
+                                muted
+                                loop
+                                playsInline
+                                className={styles.bgImage} // Reuse the styling for full-bleed
+                                style={{ filter: 'grayscale(100%) brightness(0.8)' }}
+                            >
+                                <source src={section.video} type="video/mp4" />
+                            </video>
                         </div>
 
                         <div className={styles.overlay}>
@@ -96,13 +98,18 @@ export default function Home() {
                 {/* Vertical Collection Grid - Like Zara's product lists */}
                 <section className={styles.section}>
                     <div className={styles.horizontalScroll}>
-                        {[1, 2, 3, 4].map((item) => (
+                        {[1, 2].map((item) => (
                             <div key={item} className={styles.scrollItem}>
-                                <img
-                                    src={`/design_main.jpg`}
+                                <video
+                                    autoPlay
+                                    muted
+                                    loop
+                                    playsInline
                                     className={styles.bgImage}
-                                    alt="Product"
-                                />
+                                    style={{ filter: 'grayscale(100%) contrast(1.2)' }}
+                                >
+                                    <source src={item === 1 ? "https://cdn.pixabay.com/video/2023/03/05/153401-805404554_large.mp4" : "https://cdn.pixabay.com/video/2021/04/12/70860-536962295_large.mp4"} type="video/mp4" />
+                                </video>
                                 <div className={styles.overlay}>
                                     <span className={styles.title}>PROJECT 0{item}</span>
                                     <span className={styles.description}>Editorial / Digital</span>
