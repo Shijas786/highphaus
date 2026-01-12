@@ -1,0 +1,78 @@
+# Reown AppKit Integration Guide
+
+## Overview
+This project uses Reown AppKit (formerly WalletConnect) for wallet connection and management.
+
+## Installation
+```bash
+npm install @reown/appkit @reown/appkit-adapter-wagmi
+```
+
+## Configuration
+
+### 1. Get Project ID
+- Visit https://cloud.reown.com
+- Create a new project
+- Copy your Project ID
+
+### 2. Environment Variables
+```env
+NEXT_PUBLIC_REOWN_PROJECT_ID=your_project_id_here
+```
+
+### 3. Setup (Already Done)
+- `src/config/wagmi.ts` - Wagmi adapter configuration
+- `src/components/WagmiProviderWrapper.tsx` - AppKit initialization
+
+## Usage
+
+### Connect Button
+```tsx
+// Use the built-in AppKit button
+<appkit-button size="lg" />
+```
+
+### Check Connection Status
+```tsx
+import { useAccount } from 'wagmi';
+
+const { address, isConnected } = useAccount();
+```
+
+### Access Wallet
+```tsx
+import { useAppKitAccount } from '@reown/appkit/react';
+
+const { address, isConnected } = useAppKitAccount();
+```
+
+## Features Enabled
+
+- ✅ Multi-wallet support (MetaMask, Coinbase, WalletConnect, etc.)
+- ✅ Network switching
+- ✅ Account management
+- ✅ Transaction notifications
+- ✅ Dark mode
+- ✅ Custom branding (#0052FF accent color)
+- ✅ SSR support
+
+## Theming
+
+The AppKit is themed to match HighpHaus branding:
+- Primary color: #0052FF (Base Blue)
+- Dark mode enabled
+- Custom border radius
+
+## Networks
+
+Configured networks:
+- Base Mainnet (Chain ID: 8453)
+- Base Sepolia (Chain ID: 84532)
+
+## Type Hints
+
+When using Reown AppKit in Cursor IDE:
+- Auto-completion for all AppKit components
+- Type-safe configuration
+- Real-time error checking
+- Documentation hints

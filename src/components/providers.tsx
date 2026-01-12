@@ -1,0 +1,58 @@
+'use client';
+
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactNode, useState } from 'react';
+import { Toaster } from 'sonner';
+import { WagmiProviderWrapper } from './WagmiProviderWrapper';
+import { FarcasterProvider } from './FarcasterProvider';
+import { ErrorBoundary } from './ErrorBoundary';
+
+export function Providers({ children, cookies }: { children: ReactNode; cookies: string | null }) {
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            refetchOnWindowFocus: false,
+            retry: 1,
+            staleTime: 5000,
+            // Don't throw errors - just return undefined
+            throwOnError: false,
+          },
+        },
+      })
+  );
+
+  try {
+    return (
+      <ErrorBoundary>
+        <WagmiProviderWrapper cookies={cookies}>
+          <QueryClientProvider client={queryClient}>
+            <FarcasterProvider>
+              {children}
+              <Toaster
+                position="top-right"
+                theme="dark"
+                toastOptions={{
+                  style: {
+                    background: 'rgba(10, 10, 15, 0.9)',
+                    border: '1px solid rgba(0, 82, 255, 0.3)',
+                    color: '#fff',
+                  },
+                }}
+              />
+            </FarcasterProvider>
+          </QueryClientProvider>
+        </WagmiProviderWrapper>
+      </ErrorBoundary>
+    );
+  } catch (error) {
+    // If providers fail, still render children with QueryClient at minimum
+    console.error('Provider initialization error:', error);
+    return (
+      <QueryClientProvider client={queryClient}>
+        {children}
+      </QueryClientProvider>
+    );
+  }
+}
