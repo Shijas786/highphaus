@@ -1,0 +1,116 @@
+.main {
+    padding-top: 20rem;
+    min-height: 100vh;
+    background: #fff;
+    color: #000;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8rem;
+}
+
+.info h1 {
+    font-size: 8rem;
+    font-weight: 400;
+    letter-spacing: -0.05em;
+    line-height: 0.8;
+    margin-bottom: 4rem;
+}
+
+.info p {
+    font-size: 13px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #666;
+    margin-bottom: 4rem;
+}
+
+.quickContact {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.contactLink {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #000;
+    font-weight: 500;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+}
+
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.inputGroup label {
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #999;
+}
+
+.inputGroup input,
+.inputGroup select,
+.inputGroup textarea {
+    background: none;
+    border: none;
+    border-bottom: 1px solid #000;
+    padding: 1rem 0;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #000;
+    outline: none;
+}
+
+.inputGroup select {
+    cursor: pointer;
+}
+
+.submitBtn {
+    background: #000;
+    color: #fff;
+    border: none;
+    padding: 1.5rem;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    margin-top: 2rem;
+    transition: background 0.3s ease;
+}
+
+.submitBtn:hover {
+    background: #444;
+}
+
+@media (max-width: 1024px) {
+    .info h1 {
+        font-size: 4rem;
+    }
+
+    .grid {
+        gap: 4rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .main {
+        padding-top: 10rem;
+    }
+
+    .grid {
+        grid-template-columns: 1fr;
+    }
+}

@@ -1,0 +1,143 @@
+.main {
+    background: #fff;
+    color: #000;
+}
+
+.snapContainer {
+    height: 100vh;
+    overflow-y: scroll;
+    scroll-snap-type: y mandatory;
+}
+
+.section {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    scroll-snap-align: start;
+    overflow: hidden;
+}
+
+.bgWrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.bgImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(100%);
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 3rem;
+    z-index: 10;
+}
+
+.contentBox {
+    max-width: 600px;
+}
+
+.title {
+    font-size: 13px;
+    letter-spacing: 2px;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.description {
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: #333;
+    line-height: 1.5;
+    text-transform: uppercase;
+}
+
+.footerInfo {
+    position: absolute;
+    bottom: 2rem;
+    right: 3rem;
+    text-align: right;
+}
+
+.label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #666;
+}
+
+/* Specific for Hero */
+.heroTitle {
+    font-size: clamp(3rem, 10vw, 8rem);
+    font-weight: 400;
+    letter-spacing: -0.05em;
+    line-height: 0.8;
+    margin-bottom: 2rem;
+}
+
+/* Horizontal scroll section like Zara products */
+.horizontalScroll {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    height: 100%;
+    width: 100%;
+}
+
+.scrollItem {
+    flex: 0 0 100%;
+    height: 100%;
+    scroll-snap-align: start;
+    position: relative;
+}
+
+@media (min-width: 1024px) {
+    .scrollItem {
+        flex: 0 0 50%;
+    }
+}
+
+@media (min-width: 1440px) {
+    .scrollItem {
+        flex: 0 0 33.333%;
+    }
+}
+
+.ctaButton {
+    display: inline-block;
+    border: 1px solid #000;
+    padding: 1rem 2rem;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    margin-top: 1rem;
+}
+
+.ctaButton:hover {
+    background: #000;
+    color: #fff;
+}
+
+@media (max-width: 640px) {
+    .overlay {
+        padding: 1.5rem;
+    }
+
+    .footerInfo {
+        right: 1.5rem;
+        bottom: 1.5rem;
+    }
+}
